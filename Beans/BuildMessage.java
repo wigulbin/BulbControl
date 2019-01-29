@@ -27,7 +27,6 @@ public class BuildMessage {
         String length = decimal2hex((header.length() + 4) / 2);
         header = length  + "00" + header;
 
-        System.out.println(header);
         return hexStringToByteArray(header);
     }
 

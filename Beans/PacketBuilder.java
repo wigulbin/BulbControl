@@ -170,7 +170,6 @@ public class PacketBuilder {
         return builder.setPower(on, durationMili);
     }
 
-
     public static byte[] setPowerMessage(boolean on, int durationMili, String hex){
         PacketBuilder builder = PacketBuilder.buildPacket(false);
         builder.setTarget(hex);
@@ -211,6 +210,19 @@ public class PacketBuilder {
         return getByteArrayFromList();
     }
 
+    public static byte[] getHBSKMessage(String hex){
+        PacketBuilder builder = PacketBuilder.buildPacket(false);
+        builder.setTarget(hex);
+        return getHBSKMessage(hex);
+    }
+
+    private byte[] getHBSK(String hex){
+        setMessage(101);
+        setLength(byteList);
+
+        return getByteArrayFromList();
+    }
+
     public static byte[] setBrightnessMessage(int brightness, String hex){
         PacketBuilder builder = PacketBuilder.buildPacket(false);
         builder.setTarget(hex);
@@ -224,8 +236,10 @@ public class PacketBuilder {
         addEmptyBytes(1, bytes);
         addEmptyBytes(2, bytes);
         addEmptyBytes(2, bytes);
+
         bytes.addAll(createBytesFromInt(brightness, 2));
         addEmptyBytes(2, bytes);
+//        addEmptyBytes(4, bytes);
         bytes.addAll(createBytesFromInt(1024, 4));
         byteList.addAll(bytes);
         setLength(byteList);
@@ -250,8 +264,6 @@ public class PacketBuilder {
             addEmptyBytes(2, bytes);
         else
             bytes.addAll(createBytesFromInt(k, 2));
-
-
     }
 
 
@@ -264,7 +276,7 @@ public class PacketBuilder {
 
 
     public static List<Byte> createBytesFromInt(int num, int byteNum){
-        List<Byte> bytes = new ArrayList<>(4);
+        List<Byte> bytes = new ArrayList<>();
         for(int i = 0; i < byteNum*8; i+=8)
             bytes.add((byte)(num>>>i));
 

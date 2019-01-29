@@ -27,7 +27,6 @@ public class LightInfo {
     private AtomicInteger currentBrightness;
 
     public LightInfo(){
-
     }
 
     public LightInfo(String mac){

@@ -1,6 +1,5 @@
 package com.augment.golden.bulbcontrol.Activities;
 
-import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.wearable.activity.WearableActivity;
@@ -11,11 +10,10 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.augment.golden.bulbcontrol.AsyncTasks.BulbTask;
+import com.augment.golden.bulbcontrol.Beans.LifxApi.LifxBulb;
 import com.augment.golden.bulbcontrol.Beans.LightInfo;
-import com.augment.golden.bulbcontrol.Beans.SmartBulb;
 import com.augment.golden.bulbcontrol.R;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -29,6 +27,7 @@ public class BulbActivity extends WearableActivity {
     String prev = "#666666";
     private SeekBar mSeekBar;
     private ImageView mImage;
+    private LifxBulb m_bulb;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,10 +43,9 @@ public class BulbActivity extends WearableActivity {
             String value1 = extras.getString("mac");
             if(value1 != null){
                 bulbHex = value1;
-                SmartBulb bulb = SmartBulb.getBulb(value1, this);
+                m_bulb = LifxBulb.findBulb(bulbHex);
             }
         }
-
 
         mSeekBar = (SeekBar) findViewById(R.id.simpleSeekBar);
         mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -119,6 +117,7 @@ public class BulbActivity extends WearableActivity {
         int brightness = currentBrightness.get();
         int num = (int) ((brightness/65535f) * 15);
 
+        m_bulb.setBrightness((brightness));
 
         if(num == 1 || num == 0)
             prev = ("#111111");
