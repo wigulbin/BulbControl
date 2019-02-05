@@ -54,13 +54,12 @@ public class SmartBulbListAdapter extends RecyclerView.Adapter<SmartBulbListAdap
         holder.itemView.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
-                System.out.println(mBulbs.get(position).getLabel());
-                    LifxBulb bulb = (LifxBulb) mBulbs.get(position);
+                LifxBulb bulb = mBulbs.get(position);
 
-                    Intent intent = new Intent(context, BulbActivity.class);
-                    intent.putExtra("mac", bulb.getMac());
+                Intent intent = new Intent(context, BulbActivity.class);
+                intent.putExtra("mac", bulb.getMac());
 
-                    context.startActivity(intent);
+                context.startActivity(intent);
             }
         });
     }

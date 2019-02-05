@@ -1,20 +1,22 @@
 package com.augment.golden.bulbcontrol.Activities;
 
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.wear.widget.drawer.WearableNavigationDrawerView;
 import android.support.wearable.activity.WearableActivity;
 import android.support.wearable.input.RotaryEncoder;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
-import android.view.View;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-import com.augment.golden.bulbcontrol.AsyncTasks.BulbTask;
 import com.augment.golden.bulbcontrol.Beans.LifxApi.LifxBulb;
 import com.augment.golden.bulbcontrol.Beans.LightInfo;
 import com.augment.golden.bulbcontrol.R;
+import com.augment.golden.bulbcontrol.SectionFragment;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -34,7 +36,7 @@ public class BulbActivity extends WearableActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bulb);
 
-        mTextView = (TextView) findViewById(R.id.text);
+        mTextView = findViewById(R.id.text);
 
         Bundle extras = getIntent().getExtras();
         if(extras == null){
@@ -47,16 +49,19 @@ public class BulbActivity extends WearableActivity {
             }
         }
 
-        mSeekBar = (SeekBar) findViewById(R.id.simpleSeekBar);
+        WearableNavigationDrawerView nav = findViewById(R.id.top_navigation_drawer);
+        nav.setAdapter(new com.augment.golden.bulbcontrol.Adapters.NavigationAdapter(this));
+        nav.addOnItemSelectedListener((i) -> {
+            SectionFragment.handleClick(i, this, bulbHex);
+            finish();
+        });
+        nav.getController().peekDrawer();
+
+        mSeekBar = findViewById(R.id.simpleSeekBar);
         mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             int progressChangedValue = 0;
 
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                progressChangedValue = progress;
-                LightInfo info = new LightInfo(bulbHex);
-                currentBrightness.set(progressChangedValue);
-                changeBrightness();
-                new BulbTask().execute(info.changeBrightness(currentBrightness, bulbHex));
             }
 
             public void onStartTrackingTouch(SeekBar seekBar) {
@@ -64,21 +69,21 @@ public class BulbActivity extends WearableActivity {
             }
 
             public void onStopTrackingTouch(SeekBar seekBar) {
-//                Toast.makeText(BulbActivity.this, "Seek bar progress is :" + progressChangedValue,
-//                        Toast.LENGTH_SHORT).show();
+                progressChangedValue = seekBar.getProgress();
+                LightInfo info = new LightInfo(bulbHex);
+                currentBrightness.set(progressChangedValue);
+                changeBrightness();
+                new UpdateBulb().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, info.changeBrightness(currentBrightness, bulbHex));
             }
         });
 
-        mImage = (ImageView) findViewById(R.id.imageView5);
-        mImage.setOnClickListener(new ImageView.OnClickListener(){
-            public void onClick(View v){
-                togglePower();
-            }
-        });
+        mImage = findViewById(R.id.imageView5);
+        mImage.setOnClickListener((v) -> togglePower());
 
         // Enables Always-on
         setAmbientEnabled();
     }
+
     @Override
     public boolean onGenericMotionEvent(MotionEvent ev){
         if(ev.getAction() == MotionEvent.ACTION_SCROLL && RotaryEncoder.isFromRotaryEncoder(ev)){
@@ -87,7 +92,7 @@ public class BulbActivity extends WearableActivity {
             changeBrightness();
             LightInfo info = new LightInfo(bulbHex);
             mSeekBar.setProgress(currentBrightness.get());
-            new BulbTask().execute(info.changeBrightness(currentBrightness, bulbHex));
+            new UpdateBulb().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, info.changeBrightness(currentBrightness, bulbHex));
         }
 
         return super.onGenericMotionEvent(ev);
@@ -103,8 +108,7 @@ public class BulbActivity extends WearableActivity {
 
     private void togglePower(){
         LightInfo info = new LightInfo(bulbHex);
-        info.changePower(on, bulbHex);
-        new BulbTask().execute(info);
+        new UpdateBulb().execute(info.changePower(on, bulbHex));
         if(!on)
             setColor("#212121");
         else
@@ -154,8 +158,61 @@ public class BulbActivity extends WearableActivity {
     }
 
     public void setColor(String hex) {
-        ImageView lineColorCode = (ImageView)findViewById(R.id.imageView5);
+        ImageView lineColorCode = findViewById(R.id.imageView5);
         int color = Color.parseColor(hex); //The color you want
         lineColorCode.setColorFilter(color);
+    }
+
+
+
+
+    private final class NavigationAdapter extends WearableNavigationDrawerView.WearableNavigationDrawerAdapter{
+        @Override
+        public CharSequence getItemText(int i) {
+            return null;
+        }
+
+        @Override
+        public Drawable getItemDrawable(int i) {
+            return null;
+        }
+
+        @Override
+        public int getCount() {
+            return 0;
+        }
+
+        @Override
+        public void notifyDataSetChanged() {
+            super.notifyDataSetChanged();
+        }
+    }
+
+    private static class UpdateBulb extends AsyncTask<LightInfo, Void, Void> {
+        @Override
+        protected Void doInBackground(LightInfo... params) {
+            LightInfo info = params[0];
+
+            if(info.getMacAddress().length() > 0)
+            {
+                if(info.isChangePower())
+                    LifxBulb.findBulb(info.getMacAddress()).changePower(info.isOnOrOff(), 500);
+
+                if(info.isChangeBrightness() && info.getCurrentBrightness().intValue() > -1)
+                    LifxBulb.findBulb(info.getMacAddress()).changeHSBK();
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            super.onPostExecute(result);
+        }
     }
 }

@@ -95,11 +95,17 @@ class PacketFactory {
         return factory.getByteArrayFromList();
     }
 
-    static byte[] buildSetHBSKMessage(LifxBulb bulb){
+    static byte[] buildSetHSBKMessage(LifxBulb bulb){
         PacketFactory factory = new PacketFactory();
         factory.setMessage(102);
         factory.setTarget(bulb.getMac());
+        factory.m_byteList.add((byte) 0);
         factory.setHSBK(bulb.getHue(), bulb.getSaturation(), bulb.getBrightness(), bulb.getKelvin());
+
+        factory.m_byteList.add((byte) 0);
+        factory.m_byteList.add((byte) 0);
+        factory.m_byteList.add((byte) 0);
+        factory.m_byteList.add((byte) 0);
 
         factory.setLength();
         return factory.getByteArrayFromList();
@@ -142,23 +148,6 @@ class PacketFactory {
 
         bytes.add((byte)(k & 0xff));
         bytes.add((byte)((k>>>8) & 0xff));
-
-//        if(h == 0)
-//            addEmptyBytes(2, bytes);
-//        else
-//            bytes.addAll(createBytesFromInt(h, 2));
-//        if(s == 0)
-//            addEmptyBytes(2, bytes);
-//        else
-//            bytes.addAll(createBytesFromInt(s, 2));
-//        if(b == 0)
-//            addEmptyBytes(2, bytes);
-//        else
-//            bytes.addAll(createBytesFromInt(b, 2));
-//        if(k == 0)
-//            addEmptyBytes(2, bytes);
-//        else
-//            bytes.addAll(createBytesFromInt(k, 2));
     }
     private byte[] getByteArrayFromList(){
         List<Byte> byteList = this.m_byteList;

@@ -26,7 +26,7 @@ class LifxWrapper {
         DatagramPacket packet = new DatagramPacket(message, message.length, address, 56700);
         try(DatagramSocket socket = new DatagramSocket()){
             byte buffer[] = new byte[256];
-            if(timeout) socket.setSoTimeout(500);
+            socket.setSoTimeout(500);
             socket.send(packet);
             packet = new DatagramPacket(buffer, buffer.length);
             socket.receive(packet);
@@ -38,18 +38,27 @@ class LifxWrapper {
         return data;
     }
 
-    static void setPower(String hex, boolean on, int durationMili){
-        byte[] response;
-        int i = 0;
-        do {
-            response = sendMessage(PacketFactory.buildSetPowerMessage(on, durationMili, hex), true);
-            i++;
+    private static void sendMessage(byte[] message){
+        InetAddress address = getAddress();
+        DatagramPacket packet = new DatagramPacket(message, message.length, address, 56700);
+        try(DatagramSocket socket = new DatagramSocket()){
+            socket.send(packet);
+        }catch (Exception e){
+            e.printStackTrace();
+            System.out.println("Message not Sent");
         }
-        while(response.length == 0 && i < 5);
+    }
+
+    static void setPower(String hex, boolean on, int durationMili){
+        byte[] message = PacketFactory.buildSetPowerMessage(on, durationMili, hex);
+        sendMessage(message);
+        sendMessage(message);
     }
 
     static void setHSBK(LifxBulb bulb){
-        sendMessage(PacketFactory.buildSetHBSKMessage(bulb), false);
+        byte[] message = PacketFactory.buildSetHSBKMessage(bulb);
+        sendMessage(message);
+        sendMessage(message);
     }
 
     static HSBK getHSBK(String macAddress){

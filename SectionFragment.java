@@ -1,21 +1,20 @@
 package com.augment.golden.bulbcontrol;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
-import android.os.Bundle;
-import android.support.annotation.Nullable;
+import android.content.Intent;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
+
+import com.augment.golden.bulbcontrol.Activities.BulbActivity;
+import com.augment.golden.bulbcontrol.Activities.BulbColorActivity;
+import com.augment.golden.bulbcontrol.Activities.BulbWarmActivity;
+
 
 public class SectionFragment extends Fragment {
 
     public enum Section{
-        Search(R.string.search, R.drawable.round_cached_black_18dp_2x);
+        Brightness(R.string.brightness, R.drawable.ic_outline_brightness_5_24px),
+        Color(R.string.color, R.drawable.ic_outline_color_lens_24px),
+        Warmness(R.string.warmness, R.drawable.ic_outline_whatshot_24px);
 
         public final int titleRes;
         public final int drawableRes;
@@ -26,44 +25,27 @@ public class SectionFragment extends Fragment {
         }
     }
 
-    public static SectionFragment getSection(final Section section) {
-        final SectionFragment newSection = new SectionFragment();
-        final Bundle arguments = new Bundle();
-        arguments.putSerializable(EXTRA_SECTION, section);
-        newSection.setArguments(arguments);
-        return newSection;
-    }
 
-    public static final String EXTRA_SECTION =
-            "com.example.android.wearable.navaction.EXTRA_SECTION";
+    public static void handleClick(int position, Context context, String mac){
+        System.out.println(position);
+        SectionFragment.Section selectedSection = SectionFragment.Section.values()[position];
 
-
-    private Section mSection;
-    private ImageView mEmojiView;
-    private TextView mTitleView;
-
-    @Nullable
-    @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState){
-        final View view = inflater.inflate(R.layout.fragment_sections, container, false);
-        mEmojiView = (ImageView) view.findViewById(R.id.emoji);
-        mTitleView = (TextView) view.findViewById(R.id.title);
-
-        if(getArguments() != null){
-            mSection = (Section) getArguments().getSerializable(EXTRA_SECTION);
-            final Drawable imageDrawable = ContextCompat.getDrawable(getContext(), mSection.drawableRes);
-            mEmojiView.setImageDrawable(imageDrawable);
-            mTitleView.setText(getResources().getText(mSection.titleRes));
-
-
-            mTitleView.setOnClickListener(new TextView.OnClickListener(){
-                @Override
-                public void onClick(View v) {
-                    System.out.println(v);
-                }
-            });
+        if(selectedSection.titleRes == R.string.brightness){
+            Intent intent = new Intent(context, BulbActivity.class);
+            intent.putExtra("mac", mac);
+            context.startActivity(intent);
         }
 
-        return view;
+        if(selectedSection.titleRes == R.string.color){
+            Intent intent = new Intent(context, BulbColorActivity.class);
+            intent.putExtra("mac", mac);
+            context.startActivity(intent);
+        }
+        if(selectedSection.titleRes == R.string.warmness){
+            Intent intent = new Intent(context, BulbWarmActivity.class);
+            intent.putExtra("mac", mac);
+            context.startActivity(intent);
+        }
+        System.out.println(selectedSection);
     }
 }

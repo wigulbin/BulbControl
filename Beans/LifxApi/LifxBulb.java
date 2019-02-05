@@ -116,6 +116,7 @@ public class LifxBulb extends SmartBulb {
         return bulbMap.get(macAddress);
     }
 
+
     public static LifxBulb getBulb(String macAddress, Context context){
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         LifxBulb bulb = new LifxBulb(macAddress);
@@ -210,8 +211,9 @@ public class LifxBulb extends SmartBulb {
 
 
     //Bulb network methods
-    public static void findAndSaveBulbs(final SmartBulbListAdapter adapter, final Activity activity){
+    public static List<LifxBulb> findAllBulbs(final SmartBulbListAdapter adapter, final Activity activity){
         Set<String> macSet = new HashSet<>();
+        List<LifxBulb> bulbs = new ArrayList<>();
         List<String> macAddresses = LifxWrapper.getAllMacAddresses();
         for (String macAddress : macAddresses) {
             if(macSet.add(macAddress)){
@@ -225,24 +227,20 @@ public class LifxBulb extends SmartBulb {
                 bulb.setBrightness(hsbk.getBrightness());
                 bulb.setKelvin(hsbk.getKelvin());
 
+                bulbs.add(bulb);
                 LifxBulb.saveBulb(bulb, activity);
-                System.out.println(hsbk);
             }
         }
 
-        activity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                List<LifxBulb> bulbs = LifxBulb.getAllBulbs(activity);
-                ProgressBar spinner = activity.findViewById(R.id.progressBar);
-                if(spinner != null)
-                    spinner.setVisibility(View.GONE);
-                for (LifxBulb bulb : bulbs) {
-                    adapter.remove(bulb);
-                    adapter.add(bulb);
-                }
-            }
-        });
+        if(bulbs.size() == 0)
+        {
+            LifxBulb bulb = new LifxBulb("d073d53c6259", "Test");
+            LifxBulb.saveBulb(bulb, activity);
+            bulbs.add(bulb);
+        }
+
+
+        return bulbs;
     }
     public void changePower(boolean on, int duration){
         LifxWrapper.setPower(this.getMac(), on, duration);

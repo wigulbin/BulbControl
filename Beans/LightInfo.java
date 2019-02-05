@@ -22,6 +22,10 @@ public class LightInfo {
     private boolean response;
 
     private boolean changeBrightness;
+    private boolean changeColor;
+
+    private int color;
+    private int saturation;
 
     private boolean getBrightness;
     private AtomicInteger currentBrightness;
@@ -45,6 +49,14 @@ public class LightInfo {
     public LightInfo changeBrightness(AtomicInteger currentBrightness, String macAddress){
         this.changeBrightness = true;
         this.currentBrightness = currentBrightness;
+        this.macAddress = macAddress;
+
+        return this;
+    }
+    public LightInfo changeColor(int color, int saturation, String macAddress){
+        this.changeColor = true;
+        this.saturation = saturation;
+        this.color = color;
         this.macAddress = macAddress;
 
         return this;
@@ -109,5 +121,21 @@ public class LightInfo {
 
     public void setMacAddress(String macAddress) {
         this.macAddress = macAddress;
+    }
+
+    public int getColor() {
+        return color;
+    }
+
+    public void setColor(int color) {
+        this.color = color;
+    }
+
+    public int getSaturation() {
+        return saturation;
+    }
+
+    public void setSaturation(int saturation) {
+        this.saturation = saturation;
     }
 }
