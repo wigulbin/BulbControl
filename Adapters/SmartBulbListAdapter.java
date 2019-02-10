@@ -1,12 +1,18 @@
 package com.augment.golden.bulbcontrol.Adapters;
 
+import android.animation.AnimatorInflater;
+import android.animation.AnimatorSet;
+import android.animation.ArgbEvaluator;
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 
 import com.augment.golden.bulbcontrol.Activities.BulbActivity;
@@ -54,11 +60,21 @@ public class SmartBulbListAdapter extends RecyclerView.Adapter<SmartBulbListAdap
         holder.itemView.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
+                int colorFrom = Color.BLACK;
+                int colorTo = Color.DKGRAY;
+                ValueAnimator colorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), colorFrom, colorTo, colorFrom);
+                colorAnimation.setDuration(500); // milliseconds
+                colorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                    @Override
+                    public void onAnimationUpdate(ValueAnimator animator) {
+                        holder.itemView.setBackgroundColor((int) animator.getAnimatedValue());
+                    }
+                });
+                colorAnimation.start();
                 LifxBulb bulb = mBulbs.get(position);
 
                 Intent intent = new Intent(context, BulbActivity.class);
                 intent.putExtra("mac", bulb.getMac());
-
                 context.startActivity(intent);
             }
         });

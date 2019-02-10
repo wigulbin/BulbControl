@@ -5,6 +5,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.wear.widget.drawer.WearableNavigationDrawerView;
 import android.support.wearable.activity.WearableActivity;
+import android.support.wearable.view.DotsPageIndicator;
 import android.view.View;
 import android.widget.TextView;
 
@@ -52,6 +53,7 @@ public class BulbColorActivity extends WearableActivity {
             }
         }
 
+
         WearableNavigationDrawerView nav = findViewById(R.id.top_navigation_drawer);
         nav.setAdapter(new com.augment.golden.bulbcontrol.Adapters.NavigationAdapter(this));
         nav.setCurrentItem(1, false);
@@ -78,16 +80,8 @@ public class BulbColorActivity extends WearableActivity {
             @Override
             public void onColorChanged(int color) {
                 if(color != 0){
-                    int red = Color.red(color);
-                    int green = Color.green(color);
-                    int blue = Color.blue(color);
-
                     float[] hsv = new float[3];
-                    Color.RGBToHSV(red, green, blue, hsv);
-
-                    int differenceR = getDifference(m_currentRed, red);
-                    int differenceG = getDifference(m_currentGreen, green);
-                    int differenceB = getDifference(m_currentBlue, blue);
+                    Color.RGBToHSV(Color.red(color), Color.green(color), Color.blue(color), hsv);
 
                     int differenceH = getDifference(m_prevHue, (int)hsv[0]);
                     int differenceS = getDifference(m_prevSaturation, (int)hsv[1]);
@@ -95,9 +89,6 @@ public class BulbColorActivity extends WearableActivity {
                     if(differenceH > 100 || differenceS > 100)
                     {
                         m_prevColor = color;
-                        m_currentRed = red;
-                        m_currentGreen = green;
-                        m_currentBlue = blue;
                         int newColor = (int)((hsv[0]/360) * 65535);
                         int newSat = (int)(hsv[1] * 65535);
 
@@ -126,7 +117,7 @@ public class BulbColorActivity extends WearableActivity {
             {
                 LifxBulb bulb = LifxBulb.findBulb(info.getMacAddress());
                 bulb.setHue(info.getColor());
-                bulb.setSaturation(65535);
+                bulb.setSaturation(info.getSaturation());
                 bulb.changeHSBK();
             }
 

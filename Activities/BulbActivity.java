@@ -1,6 +1,8 @@
 package com.augment.golden.bulbcontrol.Activities;
 
+import android.content.res.ColorStateList;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -76,7 +78,8 @@ public class BulbActivity extends WearableActivity {
                 new UpdateBulb().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, info.changeBrightness(currentBrightness, bulbHex));
             }
         });
-
+        mSeekBar.getThumb().setColorFilter(Color.parseColor("#ffa148"), PorterDuff.Mode.SRC_IN);
+//        mSeekBar.setProgressTintList(ColorStateList.valueOf(Color.parseColor("#ffa148")));
         mImage = findViewById(R.id.imageView5);
         mImage.setOnClickListener((v) -> togglePower());
 

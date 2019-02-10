@@ -247,7 +247,8 @@ public class LifxBulb extends SmartBulb {
     }
 
     public void changeHSBK(){
-        LifxWrapper.setHSBK(this);
+        LifxBulb bulb = this;
+        new Thread(() ->  LifxWrapper.setHSBK(bulb)).start();
     }
 
 }
