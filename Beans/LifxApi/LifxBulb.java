@@ -30,6 +30,8 @@ public class LifxBulb extends SmartBulb {
     private int brightness;
     private int kelvin;
 
+    private boolean on;
+
     private static Map<String, LifxBulb> bulbMap = new ConcurrentHashMap<>();
 
     public LifxBulb(){};
@@ -116,6 +118,13 @@ public class LifxBulb extends SmartBulb {
         return bulbMap.get(macAddress);
     }
 
+    public boolean isOn() {
+        return on;
+    }
+
+    public void setOn(boolean on) {
+        this.on = on;
+    }
 
     public static LifxBulb getBulb(String macAddress, Context context){
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
@@ -243,10 +252,11 @@ public class LifxBulb extends SmartBulb {
         return bulbs;
     }
     public void changePower(boolean on, int duration){
-        LifxWrapper.setPower(this.getMac(), on, duration);
+        LifxBulb bulb = this;
+        new Thread(() -> LifxWrapper.setPower(bulb.getMac(), on, duration)).start();
     }
 
-    public void changeHSBK(){
+    public void changeHsbk(){
         LifxBulb bulb = this;
         new Thread(() ->  LifxWrapper.setHSBK(bulb)).start();
     }

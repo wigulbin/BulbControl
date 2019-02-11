@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.support.wear.widget.WearableLinearLayoutManager;
 import android.support.wear.widget.WearableRecyclerView;
 import android.support.wear.widget.drawer.WearableDrawerView;
-import android.support.wear.widget.drawer.WearableNavigationDrawerView;
 import android.support.wearable.activity.WearableActivity;
 import android.view.KeyEvent;
 import android.view.View;
@@ -15,7 +14,6 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 
-import com.augment.golden.bulbcontrol.Adapters.NavigationAdapter;
 import com.augment.golden.bulbcontrol.Adapters.SmartBulbListAdapter;
 import com.augment.golden.bulbcontrol.AsyncTasks.BulbTask;
 import com.augment.golden.bulbcontrol.Beans.LightInfo;
@@ -92,9 +90,9 @@ public class MainActivity extends WearableActivity {
     }
 
     public void setColor(String hex) {
-        ImageView lineColorCode = findViewById(R.id.imageView5);
-        int color = Color.parseColor(hex); //The color you want
-        lineColorCode.setColorFilter(color);
+//        ImageView lineColorCode = findViewById(R.id.imageView5);
+//        int color = Color.parseColor(hex); //The color you want
+//        lineColorCode.setColorFilter(color);
     }
 
 

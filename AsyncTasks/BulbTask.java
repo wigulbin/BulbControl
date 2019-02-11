@@ -1,9 +1,7 @@
 package com.augment.golden.bulbcontrol.AsyncTasks;
 
-import android.app.Activity;
 import android.os.AsyncTask;
 
-import com.augment.golden.bulbcontrol.Adapters.SmartBulbListAdapter;
 import com.augment.golden.bulbcontrol.Beans.BulbClient;
 import com.augment.golden.bulbcontrol.Beans.LightInfo;
 import com.augment.golden.bulbcontrol.Beans.LifxApi.LifxBulb;
@@ -21,7 +19,7 @@ public class BulbTask extends AsyncTask<LightInfo, Void, String> {
 
         if(info.isChangeBrightness() && info.getCurrentBrightness().intValue() > -1)
             if(info.getMacAddress().length() > 0)
-                LifxBulb.findBulb(info.getMacAddress()).changeHSBK();
+                LifxBulb.findBulb(info.getMacAddress()).changeHsbk();
 
         if(info.isGetBrightness())
             info.getCurrentBrightness().getAndSet(client.getBrightness());
