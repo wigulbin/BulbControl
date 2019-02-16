@@ -13,17 +13,27 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import com.augment.golden.bulbcontrol.Adapters.SmartBulbListAdapter;
 import com.augment.golden.bulbcontrol.AsyncTasks.BulbTask;
+import com.augment.golden.bulbcontrol.Beans.HueApi.HueBridge;
+import com.augment.golden.bulbcontrol.Beans.HueApi.HueBulb;
+import com.augment.golden.bulbcontrol.Beans.HueApi.RequestManager;
 import com.augment.golden.bulbcontrol.Beans.LightInfo;
 import com.augment.golden.bulbcontrol.Beans.LifxApi.LifxBulb;
+import com.augment.golden.bulbcontrol.Beans.SmartBulb;
 import com.augment.golden.bulbcontrol.Beans.TaskInfo;
 import com.augment.golden.bulbcontrol.CustomScrollingLayoutCallback;
 import com.augment.golden.bulbcontrol.R;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class MainActivity extends WearableActivity {
     Activity mActivity;
@@ -32,6 +42,7 @@ public class MainActivity extends WearableActivity {
     private boolean on;
     private WearableRecyclerView mRecyclerView;
     private RelativeLayout mMainRefresh;
+    AtomicInteger mBridgesLeft;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,12 +57,13 @@ public class MainActivity extends WearableActivity {
 
         spinner = findViewById(R.id.progressBar);
         spinner.setVisibility(View.GONE);
+        mBridgesLeft = new AtomicInteger(0);
 
         mRecyclerView.setLayoutManager(new WearableLinearLayoutManager(this));
         CustomScrollingLayoutCallback customScrollingLayoutCallback = new CustomScrollingLayoutCallback();
         mRecyclerView.setLayoutManager(new WearableLinearLayoutManager(this, customScrollingLayoutCallback));
 
-        List<LifxBulb> bulbs = LifxBulb.getAllBulbs(this);
+        List<SmartBulb> bulbs = LifxBulb.getAllBulbsAsSmartBulbs(this);
         updateUI(bulbs);
         mMainRefresh = findViewById(R.id.main_refresh);
         if(bulbs.size() == 0){
@@ -64,10 +76,16 @@ public class MainActivity extends WearableActivity {
             mMainRefresh.setVisibility(View.INVISIBLE);
 
 
+        ImageView connectBridge = findViewById(R.id.connect_bridge);
+        HueBridge.findBridges(this);
+        connectBridge.setOnClickListener((v) -> {
+            List<HueBridge> bridges = HueBridge.retrieveBridges(getApplicationContext());
+            mBridgesLeft = new AtomicInteger(bridges.size());
+            for (HueBridge bridge : bridges)
+                new HueApiTask().execute(bridge.getInternalIpAddress() + "/api", "POST", bridge.getId());
+        });
 
         WearableDrawerView drawerView =  findViewById(R.id.draw_view);
-        drawerView.setDrawerContent(findViewById(R.id.drawer_content));
-        drawerView.setPeekContent(findViewById(R.id.peek_view));
 
         setRefreshBulbListener();
         setAmbientEnabled();
@@ -84,7 +102,12 @@ public class MainActivity extends WearableActivity {
         return super.onKeyDown(keyCode, event);
     }
 
-    public void updateUI(List<LifxBulb> bulbs){
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+    public void updateUI(List<SmartBulb> bulbs){
         mAdapter = new SmartBulbListAdapter(bulbs, mActivity);
         mRecyclerView.setAdapter(mAdapter);
     }
@@ -113,16 +136,19 @@ public class MainActivity extends WearableActivity {
 
 
 
-    private static class FindBulbs extends AsyncTask<TaskInfo, Void, List<LifxBulb>> {
+    private static class FindBulbs extends AsyncTask<TaskInfo, Void, List<SmartBulb>> {
         private WeakReference<Activity> mActivity;
         private SmartBulbListAdapter mAdapter;
 
+
         @Override
-        protected List<LifxBulb> doInBackground(TaskInfo... params) {
+        protected List<SmartBulb> doInBackground(TaskInfo... params) {
             mActivity = new WeakReference<>(params[0].getActivity());
             mAdapter = params[0].getAdapter();
-
-            return LifxBulb.findAllBulbs(mAdapter, mActivity.get());
+            List<SmartBulb> bulbs = new ArrayList<>();
+            bulbs.addAll(LifxBulb.findAllBulbs(mAdapter, mActivity.get()));
+            bulbs.addAll(HueBridge.findAllBulbs(mActivity.get()));
+            return bulbs;
         }
 
         @Override
@@ -131,13 +157,65 @@ public class MainActivity extends WearableActivity {
         }
 
         @Override
-        protected void onPostExecute(List<LifxBulb> bulbs) {
+        protected void onPostExecute(List<SmartBulb> bulbs) {
             ProgressBar spinner = mActivity.get().findViewById(R.id.progressBar);
             if(spinner != null)
                 spinner.setVisibility(View.GONE);
-            for (LifxBulb bulb : bulbs) {
+            for (SmartBulb bulb : bulbs) {
                 mAdapter.remove(bulb);
                 mAdapter.add(bulb);
+            }
+        }
+    }
+
+    public class HueApiTask extends AsyncTask<String, String, String> {
+
+        public HueApiTask(){
+            //set context variables if required
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected String doInBackground(String... params) {
+            if(params.length >= 3) {
+                RequestManager manager = new RequestManager(params[0], params[1]);
+                manager.addData("devicetype", "my_hue_app#android will");
+                try{
+                    JSONObject json = new JSONArray(manager.sendData()).getJSONObject(0);
+                    if(json != null){
+                        if(json.has("error")) {
+                            JSONObject error = json.getJSONObject("error");
+                            HueBridge.findAllBulbs(getApplicationContext());
+                            return error.getString("description");
+                        }
+                        if(json.has("success")){
+                            String username = json.getJSONObject("success").getString("username");
+                            HueBridge brige = HueBridge.retrieveBridge(params[2], getApplicationContext());
+                            brige.setUsername(username);
+                            brige.save(getApplicationContext());
+                        }
+                    }
+                } catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+
+            return "";
+        }
+
+        @Override
+        protected void onPostExecute(String message) {
+            mBridgesLeft.getAndDecrement();
+            if(message.length() > 0 && mBridgesLeft.get() == 0){
+                Toast toast = Toast.makeText(getApplicationContext(),
+                        message,
+                        Toast.LENGTH_SHORT);
+
+                toast.show();
             }
         }
     }

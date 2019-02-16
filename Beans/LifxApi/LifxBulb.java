@@ -20,27 +20,17 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class LifxBulb extends SmartBulb {
-    private String mac = "";
-    private String label = "";
-    private String group = "";
     private String location = "";
-
-    private int hue;
-    private int saturation;
-    private int brightness;
     private int kelvin;
-
-    private boolean on;
 
     private static Map<String, LifxBulb> bulbMap = new ConcurrentHashMap<>();
 
-    public LifxBulb(){};
+    public LifxBulb(){super();};
     public LifxBulb(String mac){
-        this.mac = mac;
+        super(mac);
     }
     public LifxBulb(String mac, String label){
-        this.mac = mac;
-        this.label = label;
+        super(mac, label);
     }
 
     @Override
@@ -48,12 +38,12 @@ public class LifxBulb extends SmartBulb {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         LifxBulb lifxBulb = (LifxBulb) o;
-        return Objects.equals(mac, lifxBulb.mac);
+        return Objects.equals(getId(), lifxBulb.getId());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(mac);
+        return Objects.hash(getId());
     }
 
     public static void clearBulbs(Context context){
@@ -64,16 +54,16 @@ public class LifxBulb extends SmartBulb {
     }
 
     public static void saveBulb(LifxBulb bulb, Context context){
-        bulbMap.put(bulb.getMac(), bulb);
+        bulbMap.put(bulb.getId(), bulb);
 
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.remove(bulb.getMac());
+        editor.remove(bulb.getId());
         editor.apply();
 
         // Find/Replace mac address
         Set<String> macAddresses = new HashSet<>(sharedPreferences.getStringSet("macAddresses", new HashSet<String>()));
-        macAddresses.add(bulb.getMac());
+        macAddresses.add(bulb.getId());
         editor.putStringSet("macAddresses", macAddresses);
 
         Set<String> values = new HashSet<>();
@@ -85,7 +75,7 @@ public class LifxBulb extends SmartBulb {
         values.add("saturation_" + bulb.getSaturation());
         values.add("brightness_" + bulb.getBrightness());
         values.add("kelvin_" + bulb.getKelvin());
-        editor.putStringSet(bulb.getMac(), values);
+        editor.putStringSet(bulb.getId(), values);
         editor.apply();
     }
 
@@ -93,7 +83,7 @@ public class LifxBulb extends SmartBulb {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
 
         Set<String> macAddresses = sharedPreferences.getStringSet("macAddresses", new HashSet<String>());
-        return macAddresses.contains(bulb.getMac());
+        return macAddresses.contains(bulb.getId());
     }
 
     public static List<LifxBulb> getAllBulbs(Context context){
@@ -107,7 +97,25 @@ public class LifxBulb extends SmartBulb {
             {
                 LifxBulb bulb = getBulb(mac, context);
                 bulbs.add(bulb);
-                bulbMap.put(bulb.getMac(), bulb);
+                bulbMap.put(bulb.getId(), bulb);
+            }
+        }
+
+        return bulbs;
+    }
+
+    public static List<SmartBulb> getAllBulbsAsSmartBulbs(Context context){
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        List<SmartBulb> bulbs = new ArrayList<>();
+
+        Set<String> macs = sharedPreferences.getStringSet("macAddresses", new HashSet<String>());
+        if(macs != null)
+        {
+            for (String mac : macs)
+            {
+                LifxBulb bulb = getBulb(mac, context);
+                bulbs.add(bulb);
+                bulbMap.put(bulb.getId(), bulb);
             }
         }
 
@@ -116,14 +124,6 @@ public class LifxBulb extends SmartBulb {
 
     public static LifxBulb findBulb(String macAddress){
         return bulbMap.get(macAddress);
-    }
-
-    public boolean isOn() {
-        return on;
-    }
-
-    public void setOn(boolean on) {
-        this.on = on;
     }
 
     public static LifxBulb getBulb(String macAddress, Context context){
@@ -153,60 +153,12 @@ public class LifxBulb extends SmartBulb {
         return bulb;
     }
 
-    public String getMac() {
-        return mac;
-    }
-
-    public void setMac(String mac) {
-        this.mac = mac;
-    }
-
-    public String getLabel() {
-        return label;
-    }
-
-    public void setLabel(String label) {
-        this.label = label;
-    }
-
-    public String getGroup() {
-        return group;
-    }
-
-    public void setGroup(String group) {
-        this.group = group;
-    }
-
     public String getLocation() {
         return location;
     }
 
     public void setLocation(String location) {
         this.location = location;
-    }
-
-    public int getHue() {
-        return hue;
-    }
-
-    public void setHue(int hue) {
-        this.hue = hue;
-    }
-
-    public int getSaturation() {
-        return saturation;
-    }
-
-    public void setSaturation(int saturation) {
-        this.saturation = saturation;
-    }
-
-    public int getBrightness() {
-        return brightness;
-    }
-
-    public void setBrightness(int brightness) {
-        this.brightness = brightness;
     }
 
     public int getKelvin() {
@@ -253,7 +205,7 @@ public class LifxBulb extends SmartBulb {
     }
     public void changePower(boolean on, int duration){
         LifxBulb bulb = this;
-        new Thread(() -> LifxWrapper.setPower(bulb.getMac(), on, duration)).start();
+        new Thread(() -> LifxWrapper.setPower(bulb.getId(), on, duration)).start();
     }
 
     public void changeHsbk(){

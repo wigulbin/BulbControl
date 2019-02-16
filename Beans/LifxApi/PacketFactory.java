@@ -98,7 +98,7 @@ class PacketFactory {
     static byte[] buildSetHSBKMessage(LifxBulb bulb){
         PacketFactory factory = new PacketFactory();
         factory.setMessage(102);
-        factory.setTarget(bulb.getMac());
+        factory.setTarget(bulb.getId());
         factory.m_byteList.add((byte) 0);
         factory.setHSBK(bulb.getHue(), bulb.getSaturation(), bulb.getBrightness(), bulb.getKelvin());
 

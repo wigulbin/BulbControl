@@ -19,6 +19,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 
+import com.augment.golden.bulbcontrol.Beans.HueApi.HueBulb;
 import com.augment.golden.bulbcontrol.Beans.LifxApi.LifxBulb;
 import com.augment.golden.bulbcontrol.Beans.SmartBulb;
 import com.larswerkman.holocolorpicker.ColorPicker;
@@ -122,9 +123,9 @@ public class BulbActionListners {
         String hex = "";
 
         if(num == 1 || num == 0)
-            hex = ("#111111");
-        if(num == 1 || num == 0 || num == 2)
             hex = ("#333333");
+        if(num == 1 || num == 0 || num == 2)
+            hex = ("#444444");
         if(num == 3)
             hex = ("#555555");
         if(num == 4)
@@ -163,30 +164,12 @@ public class BulbActionListners {
                 if(bulb instanceof LifxBulb){
                     LifxBulb lifxBulb = (LifxBulb) bulb;
                     ImageView imageView = (ImageView) v;
-
-                    String hex = "01";
-                    if(lifxBulb.isOn()) hex = changeBrightness((int)((lifxBulb.getBrightness()/65535f) * 15));
-                    else hex = "#101010";
-                    int colorFrom = Color.parseColor(hex);
-
-                    int colorTo = 0;
-                    if(lifxBulb.isOn())
-                        colorTo = Color.parseColor("#101010");
-                    else
-                        colorTo = Color.parseColor(changeBrightness((int)((lifxBulb.getBrightness()/65535f) * 15)));
-
-                    ValueAnimator colorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), colorFrom, colorTo);
-                    colorAnimation.setDuration(500); // milliseconds
-                    colorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                        @Override
-                        public void onAnimationUpdate(ValueAnimator animator) {
-                            imageView.setColorFilter((int) animator.getAnimatedValue());
-                        }
-                    });
-                    colorAnimation.start();
-
+                    BulbAnimations.bulbPowerAnimation(imageView, lifxBulb);
                     lifxBulb.setOn(!lifxBulb.isOn());
                     lifxBulb.changePower(lifxBulb.isOn(), 500);
+                }
+                if(bulb instanceof HueBulb){
+
                 }
             }
         };
