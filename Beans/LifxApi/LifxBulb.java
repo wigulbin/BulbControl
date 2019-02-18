@@ -203,9 +203,9 @@ public class LifxBulb extends SmartBulb {
 
         return bulbs;
     }
-    public void changePower(boolean on, int duration){
+    public void changePower(int duration){
         LifxBulb bulb = this;
-        new Thread(() -> LifxWrapper.setPower(bulb.getId(), on, duration)).start();
+        new Thread(() -> LifxWrapper.setPower(bulb.getId(), bulb.isOn(), duration)).start();
     }
 
     public void changeHsbk(){

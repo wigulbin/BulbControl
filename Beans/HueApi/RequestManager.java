@@ -40,17 +40,6 @@ public class RequestManager {
         }
     }
 
-    public boolean addData(String key, String value){
-        try{
-            m_data.put(key, value);
-        }catch (JSONException e){
-            e.printStackTrace();
-            return false;
-        }
-        return true;
-    }
-
-
     public String sendData(){
         if(!m_type.equals("GET"))
             handleMessageSend();
@@ -79,5 +68,37 @@ public class RequestManager {
         }catch (Exception e){
             e.printStackTrace();
         }
+    }
+
+
+
+    public boolean addData(String key, String value){
+        try{
+            m_data.put(key, value);
+        }catch (JSONException e){
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
+    public boolean addData(String key, boolean value){
+        try{
+            m_data.put(key, value);
+        }catch (JSONException e){
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
+    public boolean addData(String key, int value){
+        try{
+            m_data.put(key, value);
+        }catch (JSONException e){
+            e.printStackTrace();
+            return false;
+        }
+        return true;
     }
 }

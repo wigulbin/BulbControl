@@ -166,10 +166,11 @@ public class BulbActionListners {
                     ImageView imageView = (ImageView) v;
                     BulbAnimations.bulbPowerAnimation(imageView, lifxBulb);
                     lifxBulb.setOn(!lifxBulb.isOn());
-                    lifxBulb.changePower(lifxBulb.isOn(), 500);
+                    lifxBulb.changePower(500);
                 }
                 if(bulb instanceof HueBulb){
-
+                    bulb.setOn(!bulb.isOn());
+                    ((HueBulb) bulb).changePower();
                 }
             }
         };

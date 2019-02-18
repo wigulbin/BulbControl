@@ -10,8 +10,10 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class HueBridge {
@@ -22,6 +24,11 @@ public class HueBridge {
     private String username = "";
     private boolean exists;
     private boolean reachable;
+
+    private static Map<String, HueBridge> bridgeMap = new HashMap<>();
+    public static HueBridge getBridge(String id){
+        return bridgeMap.get(id);
+    }
 
     public HueBridge(){
 
@@ -77,6 +84,7 @@ public class HueBridge {
         bridge.setId(id);
         bridge.setInternalIpAddress(ip);
         bridge.setUsername(sharedPreferences.getString(id + "-username", ""));
+        bridgeMap.put(id, bridge);
 
         return bridge;
     }
@@ -99,7 +107,7 @@ public class HueBridge {
             JSONObject response = new JSONObject(manager.sendData());
             int i = 1;
             while(response.has(i + "")){
-                HueBulb bulb = parseBulbJSON(response.getJSONObject(i + ""));
+                HueBulb bulb = parseBulbJSON(response.getJSONObject(i + ""), i, this.getId());
                 if(bulb != null) bulbs.add(bulb);
                 i++;
             }
@@ -109,10 +117,11 @@ public class HueBridge {
 
         return bulbs;
     }
-    private static HueBulb parseBulbJSON(JSONObject json){
+    private static HueBulb parseBulbJSON(JSONObject json, int id, String bridgeId){
         HueBulb bulb = null;
         try{
-            bulb = new HueBulb(json.getString("uniqueid"), json.getString("name"));
+            bulb = new HueBulb(id + "", json.getString("name"));
+            bulb.setBridgeId(bridgeId);
             JSONObject bulbState = json.getJSONObject("state");
             bulb.setOn(bulbState.getBoolean("on"));
             bulb.setBrightness(bulbState.getInt("bri"));
