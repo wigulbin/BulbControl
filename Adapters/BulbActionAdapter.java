@@ -11,6 +11,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 
+import com.augment.golden.bulbcontrol.Beans.HueApi.HueBulb;
+import com.augment.golden.bulbcontrol.Beans.LifxApi.LifxBulb;
 import com.augment.golden.bulbcontrol.Beans.SmartBulb;
 import com.augment.golden.bulbcontrol.BulbActionListners;
 import com.augment.golden.bulbcontrol.R;
@@ -123,6 +125,9 @@ public class BulbActionAdapter extends RecyclerView.Adapter {
     private void handleWarmthItem(RecyclerView.ViewHolder holder){
         BulbWarmthActionViewHolder warmthViewHolder = (BulbWarmthActionViewHolder) holder;
         SeekBar seekBar = warmthViewHolder.m_bulbSeek;
+        if(bulb instanceof HueBulb){
+            seekBar.setMax(347);
+        }
         seekBar.getThumb().setColorFilter(Color.parseColor("#ffa148"), PorterDuff.Mode.SRC_IN);
         seekBar.getProgressDrawable().setColorFilter(Color.parseColor("#ffa148"), PorterDuff.Mode.SRC_IN);
         seekBar.setOnTouchListener(listeners.getSeekBarTouchListener(warmthViewHolder.m_constraintLayout));

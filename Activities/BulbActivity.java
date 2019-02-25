@@ -7,13 +7,15 @@ import android.support.v7.widget.RecyclerView;
 import android.support.wearable.activity.WearableActivity;
 
 import com.augment.golden.bulbcontrol.Adapters.BulbActionAdapter;
+import com.augment.golden.bulbcontrol.Beans.HueApi.HueBulb;
 import com.augment.golden.bulbcontrol.Beans.LifxApi.LifxBulb;
+import com.augment.golden.bulbcontrol.Beans.SmartBulb;
 import com.augment.golden.bulbcontrol.BulbPagerIndicatorDecoration;
 import com.augment.golden.bulbcontrol.R;
 
 public class BulbActivity extends WearableActivity {
 
-    private LifxBulb m_bulb;
+    private SmartBulb m_bulb;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,6 +27,8 @@ public class BulbActivity extends WearableActivity {
             if(value1 != null){
                 String bulbHex = value1;
                 m_bulb = LifxBulb.findBulb(bulbHex);
+                if(m_bulb == null)
+                    m_bulb = HueBulb.findBulb(bulbHex);
             }
         }
 

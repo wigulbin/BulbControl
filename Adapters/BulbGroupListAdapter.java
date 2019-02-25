@@ -1,7 +1,5 @@
 package com.augment.golden.bulbcontrol.Adapters;
 
-import android.animation.AnimatorInflater;
-import android.animation.AnimatorSet;
 import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
 import android.content.Context;
@@ -12,30 +10,31 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.augment.golden.bulbcontrol.Activities.BulbActivity;
-import com.augment.golden.bulbcontrol.Beans.LifxApi.LifxBulb;
 import com.augment.golden.bulbcontrol.Beans.SmartBulb;
 import com.augment.golden.bulbcontrol.BulbActionListners;
+import com.augment.golden.bulbcontrol.BulbGroup;
 import com.augment.golden.bulbcontrol.R;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class SmartBulbListAdapter extends RecyclerView.Adapter<SmartBulbListAdapter.BulbViewHolder> {
-    List<SmartBulb> mBulbs;
-    Map<String, SmartBulb> m_bulbMap;
+public class BulbGroupListAdapter extends RecyclerView.Adapter<BulbGroupListAdapter.GroupViewHolder> {
+    List<BulbGroup> mBulbGroups;
     Context context;
+    Map<String, BulbGroup> groupMap;
 
-    public static class BulbViewHolder extends RecyclerView.ViewHolder{
+    public static class GroupViewHolder extends RecyclerView.ViewHolder{
         public ConstraintLayout mConstraintLayout;
         public TextView mTextView;
         public ImageView mImageView;
-        public BulbViewHolder(ConstraintLayout v){
+        public GroupViewHolder(ConstraintLayout v){
             super(v);
             mConstraintLayout = v;
             mTextView = (TextView) v.getViewById(R.id.textView);
@@ -43,26 +42,27 @@ public class SmartBulbListAdapter extends RecyclerView.Adapter<SmartBulbListAdap
         }
     }
 
-    public SmartBulbListAdapter(List<SmartBulb> bulbs, Context context){
-        mBulbs = bulbs;
+
+    public BulbGroupListAdapter(List<SmartBulb> bulbs, Context context){
+        mBulbGroups = BulbGroup.convertBulbsToGroup(bulbs);
         this.context = context;
-        m_bulbMap = new ConcurrentHashMap<>();
+        groupMap = new ConcurrentHashMap<>();
     }
 
     @Override
-    public SmartBulbListAdapter.BulbViewHolder onCreateViewHolder(ViewGroup parent, int viewType){
+    public GroupViewHolder onCreateViewHolder(ViewGroup parent, int viewType){
         ConstraintLayout v = (ConstraintLayout) LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.new_bulb, parent, false);
 
-        BulbViewHolder vh = new BulbViewHolder(v);
+        GroupViewHolder vh = new GroupViewHolder(v);
         return vh;
     }
 
     @Override
-    public void onBindViewHolder(BulbViewHolder holder, final int position){
-        holder.mTextView.setText(mBulbs.get(position).getLabel());
+    public void onBindViewHolder(GroupViewHolder holder, final int position){
+        holder.mTextView.setText(mBulbGroups.get(position).getLabel());
 
-        holder.mImageView.setOnClickListener(new BulbActionListners(mBulbs.get(position)).getBulbImageListener());
+//        holder.mImageView.setOnClickListener(new BulbActionListners(mBulbGroups.get(position)).getBulbImageListener());
 
         holder.itemView.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -71,17 +71,12 @@ public class SmartBulbListAdapter extends RecyclerView.Adapter<SmartBulbListAdap
                 int colorTo = Color.DKGRAY;
                 ValueAnimator colorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), colorFrom, colorTo, colorFrom);
                 colorAnimation.setDuration(500); // milliseconds
-                colorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                    @Override
-                    public void onAnimationUpdate(ValueAnimator animator) {
-                        holder.itemView.setBackgroundColor((int) animator.getAnimatedValue());
-                    }
-                });
+                colorAnimation.addUpdateListener(animator -> holder.itemView.setBackgroundColor((int) animator.getAnimatedValue()));
                 colorAnimation.start();
-                SmartBulb bulb = mBulbs.get(position);
+                BulbGroup bulb = mBulbGroups.get(position);
 
                 Intent intent = new Intent(context, BulbActivity.class);
-                intent.putExtra("mac", bulb.getId());
+//                intent.putExtra("mac", bulb.getId());
                 context.startActivity(intent);
             }
         });
@@ -89,28 +84,23 @@ public class SmartBulbListAdapter extends RecyclerView.Adapter<SmartBulbListAdap
 
     @Override
     public int getItemCount(){
-        return mBulbs.size();
+        return mBulbGroups.size();
     }
 
+
     public void remove(SmartBulb bulb){
-        mBulbs.remove(bulb);
-        m_bulbMap.remove(bulb.getId());
+        mBulbGroups.remove(bulb);
         this.notifyDataSetChanged();
     }
     public void removeAll(List<SmartBulb> bulbs){
         bulbs.forEach(this::remove);
     }
 
-    public void add(SmartBulb bulb){
-        mBulbs.add(bulb);
-        m_bulbMap.put(bulb.getId(), bulb);
+    public void add(BulbGroup group){
+        mBulbGroups.add(group);
         this.notifyDataSetChanged();
     }
     public void addAll(List<SmartBulb> bulbs){
-        bulbs.forEach(this::add);
-    }
-
-    public SmartBulb getBulb(String id){
-        return m_bulbMap.get(id);
+        BulbGroup.convertBulbsToGroup(bulbs).forEach(this::add);
     }
 }

@@ -53,7 +53,6 @@ public class HueBridge {
                 }
                 editor.putStringSet("hue_bridges", bridgeIds);
                 editor.apply();
-                System.out.println(bridgeIds);
             }catch (Exception e){
                 e.printStackTrace();
             }
@@ -90,7 +89,6 @@ public class HueBridge {
     }
 
     public static List<HueBulb> findAllBulbs(Context context){
-
         List<HueBulb> bulbs = new ArrayList<>();
         List<HueBridge> bridges = retrieveBridges(context);
         for (HueBridge bridge : bridges) {
@@ -98,6 +96,24 @@ public class HueBridge {
         }
 
         return bulbs;
+    }
+
+    public List<HueBulbGroup> findGroups(){
+        List<HueBulbGroup> groups = new ArrayList<>();
+        RequestManager manager = new RequestManager(this.getInternalIpAddress() + "/api/" + this.getUsername() + "/groups", "GET");
+        try{
+            JSONObject response = new JSONObject(manager.sendData());
+            int i = 1;
+            while(response.has(i + "")){
+                HueBulbGroup group = parseGroupJSON(response.getJSONObject(i + ""), i, this.getId());
+                if(group != null) groups.add(group);
+                i++;
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        return groups;
     }
 
     public List<HueBulb> findBulbs(){
@@ -117,6 +133,25 @@ public class HueBridge {
 
         return bulbs;
     }
+
+    private static HueBulbGroup parseGroupJSON(JSONObject json, int id, String bridgeId){
+        HueBulbGroup group = null;
+        try{
+            group = new HueBulbGroup(json.getString("name"));
+            group.setType(json.getString("type"));
+            JSONObject state = json.getJSONObject("state");
+            group.setOn(state.getBoolean("on"));
+            group.setBrightness(state.getInt("bri"));
+            group.setHue(state.getInt("hue"));
+            group.setSaturation(state.getInt("sat"));
+            group.setKelvin(state.getInt("ct"));
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        return group;
+    }
     private static HueBulb parseBulbJSON(JSONObject json, int id, String bridgeId){
         HueBulb bulb = null;
         try{
@@ -127,6 +162,9 @@ public class HueBridge {
             bulb.setBrightness(bulbState.getInt("bri"));
             bulb.setHue(bulbState.getInt("hue"));
             bulb.setSaturation(bulbState.getInt("sat"));
+            bulb.setKelvin(bulbState.getInt("ct"));
+
+            HueBulb.addBulb(bulb);
         }catch (Exception e){
             e.printStackTrace();
         }

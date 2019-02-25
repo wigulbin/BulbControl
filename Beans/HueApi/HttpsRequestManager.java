@@ -55,7 +55,6 @@ public class HttpsRequestManager {
             for( int c = input.read(); c != -1; c = input.read() )
                 message.append((char)c );
             input.close();
-            System.out.println(message);
         } catch (Exception e){
             e.printStackTrace();
         }

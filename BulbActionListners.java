@@ -41,18 +41,26 @@ public class BulbActionListners {
         return new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                int newProg = ((progress + 99) / 100 ) * 100;
+                int newProg = (((progress) + 99) / 100 ) * 100;
                 if(newProg != prevProg.get())
                 {
                     prevProg.set(newProg);
-                    String hex = KelvinTable.getRGB(newProg);
-                    seekBar.getProgressDrawable().setColorFilter(Color.parseColor(hex), PorterDuff.Mode.SRC_IN);
-                    seekBar.getThumb().setColorFilter(Color.parseColor(hex), PorterDuff.Mode.SRC_IN);
                     if(bulb instanceof LifxBulb){
+                        String hex = KelvinTable.getRGB(newProg + 2500);
+                        seekBar.getProgressDrawable().setColorFilter(Color.parseColor(hex), PorterDuff.Mode.SRC_IN);
+                        seekBar.getThumb().setColorFilter(Color.parseColor(hex), PorterDuff.Mode.SRC_IN);
                         LifxBulb lifxBulb = (LifxBulb) bulb;
-                        lifxBulb.setKelvin(progress);
+                        lifxBulb.setKelvin(progress + 2500);
                         lifxBulb.setSaturation(0);
                         lifxBulb.changeHsbk();
+                    }
+                    if(bulb instanceof HueBulb){
+                        String hex = KelvinTable.getRGB(newProg + 2000);
+//                        seekBar.getProgressDrawable().setColorFilter(Color.parseColor(hex), PorterDuff.Mode.SRC_IN);
+//                        seekBar.getThumb().setColorFilter(Color.parseColor(hex), PorterDuff.Mode.SRC_IN);
+                        HueBulb hueBulb = (HueBulb) bulb;
+                        hueBulb.setKelvin((347-progress) + 153);
+                        hueBulb.changeKelvin();
                     }
                 }
             }
@@ -91,12 +99,16 @@ public class BulbActionListners {
                 {
                     prevProg.set(newProg);
 
-                    if(bulb instanceof LifxBulb)
-                    {
+                    if(bulb instanceof LifxBulb) {
                         LifxBulb lifxBulb = (LifxBulb) bulb;
-                        int brightness = lifxBulb.getBrightness() + (int) ((progress/65535f) * 15);
                         lifxBulb.setBrightness(progress);
                         lifxBulb.changeHsbk();
+                    }
+                    if(bulb instanceof HueBulb) {
+                        HueBulb hueBulb = (HueBulb) bulb;
+                        int brightness = (int) ((progress/65535f) * 254);
+                        hueBulb.setBrightness(brightness);
+                        hueBulb.changeState();
                     }
                 }
             }
@@ -108,13 +120,7 @@ public class BulbActionListners {
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 int progressChangedValue = seekBar.getProgress();
-                if(bulb instanceof LifxBulb)
-                {
-                    LifxBulb lifxBulb = (LifxBulb) bulb;
-                    lifxBulb.setBrightness(progressChangedValue);
-                    image.setColorFilter(Color.parseColor(changeBrightness((int)((progressChangedValue/65535f) * 15))));
-                    lifxBulb.changeHsbk();
-                }
+                image.setColorFilter(Color.parseColor(changeBrightness((int)((progressChangedValue/65535f) * 15))));
             }
         };
     }
@@ -170,7 +176,7 @@ public class BulbActionListners {
                 }
                 if(bulb instanceof HueBulb){
                     bulb.setOn(!bulb.isOn());
-                    ((HueBulb) bulb).changePower();
+                    ((HueBulb) bulb).changeState();
                 }
             }
         };
@@ -200,6 +206,12 @@ public class BulbActionListners {
                             lifxBulb.setSaturation(newSat);
                             lifxBulb.changeHsbk();
                         }
+                        if(bulb instanceof HueBulb){
+                            HueBulb hueBulb = (HueBulb) bulb;
+                            hueBulb.setHue(newColor);
+                            hueBulb.setSaturation((int)(hsv[1] * 254));
+                            hueBulb.changeState();
+                        }
                     }
                 }
             }
@@ -216,13 +228,19 @@ public class BulbActionListners {
                     Color.RGBToHSV(Color.red(color), Color.green(color), Color.blue(color), hsv);
                     if(hsv[1] - prevSaturation.get() > 0.02)
                     {
-                        int newSat = (int)(hsv[1] * 65535);
                         prevSaturation.set((long)hsv[1]);
 
                         if(bulb instanceof LifxBulb){
+                            int newSat = (int)(hsv[1] * 65535);
                             LifxBulb lifxBulb = (LifxBulb) bulb;
                             lifxBulb.setSaturation(newSat);
                             lifxBulb.changeHsbk();
+                        }
+                        if(bulb instanceof HueBulb){
+                            int newSat = (int)(hsv[1] * 254);
+                            HueBulb hueBulb = (HueBulb) bulb;
+                            hueBulb.setSaturation(newSat);
+                            hueBulb.changeState();
                         }
                     }
                 }

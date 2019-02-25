@@ -10,6 +10,7 @@ import android.widget.ProgressBar;
 import com.augment.golden.bulbcontrol.Adapters.SmartBulbListAdapter;
 import com.augment.golden.bulbcontrol.Beans.SmartBulb;
 import com.augment.golden.bulbcontrol.R;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -21,7 +22,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class LifxBulb extends SmartBulb {
     private String location = "";
-    private int kelvin;
 
     private static Map<String, LifxBulb> bulbMap = new ConcurrentHashMap<>();
 
@@ -60,6 +60,9 @@ public class LifxBulb extends SmartBulb {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.remove(bulb.getId());
         editor.apply();
+
+        Gson bulbJson = new Gson();
+        editor.putString(bulb.getId(), bulbJson.toJson(bulb));
 
         // Find/Replace mac address
         Set<String> macAddresses = new HashSet<>(sharedPreferences.getStringSet("macAddresses", new HashSet<String>()));
@@ -160,15 +163,6 @@ public class LifxBulb extends SmartBulb {
     public void setLocation(String location) {
         this.location = location;
     }
-
-    public int getKelvin() {
-        return kelvin;
-    }
-
-    public void setKelvin(int kelvin) {
-        this.kelvin = kelvin;
-    }
-
 
 
     //Bulb network methods

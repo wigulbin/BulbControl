@@ -52,7 +52,6 @@ public class RequestManager {
 
             for( int c = stream.read(); c != -1; c = stream.read() )
                 message.append((char)c);
-            System.out.println(message);
         } catch (Exception e){
             e.printStackTrace();
         }

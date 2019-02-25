@@ -8,8 +8,11 @@ public class SmartBulb {
     private int hue;
     private int saturation;
     private int brightness;
+    private int kelvin;
 
     private boolean on;
+
+    public static boolean singleView;
 
     public SmartBulb(){}
     public SmartBulb(String id){
@@ -50,6 +53,14 @@ public class SmartBulb {
 
     public void setSaturation(int saturation) {
         this.saturation = saturation;
+    }
+
+    public void setKelvin(int kelvin) {
+        this.kelvin = kelvin;
+    }
+
+    public int getKelvin() {
+        return this.kelvin;
     }
 
     public int getBrightness() {
