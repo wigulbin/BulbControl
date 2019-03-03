@@ -1,7 +1,5 @@
 package com.augment.golden.bulbcontrol.Adapters;
 
-import android.animation.AnimatorInflater;
-import android.animation.AnimatorSet;
 import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
 import android.content.Context;
@@ -12,14 +10,12 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.augment.golden.bulbcontrol.Activities.BulbActivity;
-import com.augment.golden.bulbcontrol.Beans.LifxApi.LifxBulb;
 import com.augment.golden.bulbcontrol.Beans.SmartBulb;
-import com.augment.golden.bulbcontrol.BulbActionListners;
+import com.augment.golden.bulbcontrol.OnChangeListeners.BulbActionListeners;
 import com.augment.golden.bulbcontrol.R;
 
 import java.util.List;
@@ -62,7 +58,7 @@ public class SmartBulbListAdapter extends RecyclerView.Adapter<SmartBulbListAdap
     public void onBindViewHolder(BulbViewHolder holder, final int position){
         holder.mTextView.setText(mBulbs.get(position).getLabel());
 
-        holder.mImageView.setOnClickListener(new BulbActionListners(mBulbs.get(position)).getBulbImageListener());
+        holder.mImageView.setOnClickListener(new BulbActionListeners(mBulbs.get(position)).getBulbImageListener());
 
         holder.itemView.setOnClickListener(new View.OnClickListener(){
             @Override

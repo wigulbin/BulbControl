@@ -1,39 +1,33 @@
-package com.augment.golden.bulbcontrol;
+package com.augment.golden.bulbcontrol.OnChangeListeners;
 
-import android.animation.ArgbEvaluator;
-import android.animation.ValueAnimator;
-import android.graphics.Bitmap;
-import android.graphics.BitmapShader;
-import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.ColorFilter;
-import android.graphics.Paint;
 import android.graphics.PorterDuff;
-import android.graphics.RectF;
-import android.graphics.Shader;
-import android.graphics.drawable.BitmapDrawable;
 import android.support.constraint.ConstraintLayout;
-import android.support.v4.graphics.ColorUtils;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 
 import com.augment.golden.bulbcontrol.Beans.HueApi.HueBulb;
+import com.augment.golden.bulbcontrol.Beans.HueApi.HueBulbGroup;
 import com.augment.golden.bulbcontrol.Beans.LifxApi.LifxBulb;
 import com.augment.golden.bulbcontrol.Beans.SmartBulb;
+import com.augment.golden.bulbcontrol.BulbAnimations;
+import com.augment.golden.bulbcontrol.BulbGroup;
+import com.augment.golden.bulbcontrol.Changeable;
+import com.augment.golden.bulbcontrol.KelvinTable;
 import com.larswerkman.holocolorpicker.ColorPicker;
 import com.larswerkman.holocolorpicker.SaturationBar;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class BulbActionListners {
+public class ChangeableActionListeners {
+    Changeable changeable;
 
-    private SmartBulb bulb;
 
-    public BulbActionListners(SmartBulb bulb){
-        this.bulb = bulb;
+    public ChangeableActionListeners(Changeable changeable){
+        this.changeable = changeable;
     }
 
     public SeekBar.OnSeekBarChangeListener getWarmthSeekBarChangeListener(){
@@ -45,23 +39,21 @@ public class BulbActionListners {
                 if(newProg != prevProg.get())
                 {
                     prevProg.set(newProg);
-                    if(bulb instanceof LifxBulb){
-                        String hex = KelvinTable.getRGB(newProg + 2500);
-                        seekBar.getProgressDrawable().setColorFilter(Color.parseColor(hex), PorterDuff.Mode.SRC_IN);
-                        seekBar.getThumb().setColorFilter(Color.parseColor(hex), PorterDuff.Mode.SRC_IN);
-                        LifxBulb lifxBulb = (LifxBulb) bulb;
-                        lifxBulb.setKelvin(progress + 2500);
-                        lifxBulb.setSaturation(0);
-                        lifxBulb.changeHsbk();
+                    int kelvin = 0;
+                    String hex;
+                    if(changeable instanceof LifxBulb){
+                        hex = KelvinTable.getRGB(newProg + 2500);
+                        kelvin = progress + 2500;
+                        changeable.setSaturation(0);
+                    } else{
+                        hex = KelvinTable.getRGB(newProg + 2000);
+                        kelvin = (347-progress) + 153;
                     }
-                    if(bulb instanceof HueBulb){
-                        String hex = KelvinTable.getRGB(newProg + 2000);
-//                        seekBar.getProgressDrawable().setColorFilter(Color.parseColor(hex), PorterDuff.Mode.SRC_IN);
-//                        seekBar.getThumb().setColorFilter(Color.parseColor(hex), PorterDuff.Mode.SRC_IN);
-                        HueBulb hueBulb = (HueBulb) bulb;
-                        hueBulb.setKelvin((347-progress) + 153);
-                        hueBulb.changeKelvin();
-                    }
+
+                    seekBar.getProgressDrawable().setColorFilter(Color.parseColor(hex), PorterDuff.Mode.SRC_IN);
+                    seekBar.getThumb().setColorFilter(Color.parseColor(hex), PorterDuff.Mode.SRC_IN);
+                    changeable.setKelvin(kelvin);
+                    changeable.changeKelvin();
                 }
             }
 
@@ -98,18 +90,15 @@ public class BulbActionListners {
                 if(newProg != prevProg.get())
                 {
                     prevProg.set(newProg);
+                    int brightness;
 
-                    if(bulb instanceof LifxBulb) {
-                        LifxBulb lifxBulb = (LifxBulb) bulb;
-                        lifxBulb.setBrightness(progress);
-                        lifxBulb.changeHsbk();
-                    }
-                    if(bulb instanceof HueBulb) {
-                        HueBulb hueBulb = (HueBulb) bulb;
-                        int brightness = (int) ((progress/65535f) * 254);
-                        hueBulb.setBrightness(brightness);
-                        hueBulb.changeState();
-                    }
+                    if(changeable instanceof LifxBulb)
+                        brightness = progress;
+                    else
+                        brightness = (int) ((progress/65535f) * 254);
+
+                    changeable.setBrightness(brightness);
+                    changeable.changeState();
                 }
             }
 
@@ -167,17 +156,17 @@ public class BulbActionListners {
         return new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                if(bulb instanceof LifxBulb){
-                    LifxBulb lifxBulb = (LifxBulb) bulb;
-                    ImageView imageView = (ImageView) v;
-                    BulbAnimations.bulbPowerAnimation(imageView, lifxBulb);
-                    lifxBulb.setOn(!lifxBulb.isOn());
-                    lifxBulb.changePower(500);
+                boolean on;
+                if(changeable instanceof SmartBulb){
+                    SmartBulb lifxBulb = (SmartBulb) changeable;
+                    on = !lifxBulb.isOn();
+                    BulbAnimations.bulbPowerAnimation((ImageView) v, lifxBulb);
+                }else{
+                    HueBulbGroup group = (HueBulbGroup) changeable;
+                    on = !group.isOn();
                 }
-                if(bulb instanceof HueBulb){
-                    bulb.setOn(!bulb.isOn());
-                    ((HueBulb) bulb).changeState();
-                }
+                changeable.setOn(on);
+                changeable.changePower();
             }
         };
     }
@@ -196,22 +185,13 @@ public class BulbActionListners {
                     if(differenceH > 10)
                     {
                         int newColor = (int)((hsv[0]/360) * 65535);
-                        int newSat = (int)(hsv[1] * 65535);
+                        int newSat = (changeable instanceof LifxBulb) ? (int)(hsv[1] * 65535) : (int)(hsv[1] * 254);
 
                         prevHue.set(newColor);
 
-                        if(bulb instanceof LifxBulb){
-                            LifxBulb lifxBulb = (LifxBulb) bulb;
-                            lifxBulb.setHue(newColor);
-                            lifxBulb.setSaturation(newSat);
-                            lifxBulb.changeHsbk();
-                        }
-                        if(bulb instanceof HueBulb){
-                            HueBulb hueBulb = (HueBulb) bulb;
-                            hueBulb.setHue(newColor);
-                            hueBulb.setSaturation((int)(hsv[1] * 254));
-                            hueBulb.changeState();
-                        }
+                        changeable.setHue(newColor);
+                        changeable.setSaturation(newSat);
+                        changeable.changeState();
                     }
                 }
             }
@@ -230,18 +210,9 @@ public class BulbActionListners {
                     {
                         prevSaturation.set((long)hsv[1]);
 
-                        if(bulb instanceof LifxBulb){
-                            int newSat = (int)(hsv[1] * 65535);
-                            LifxBulb lifxBulb = (LifxBulb) bulb;
-                            lifxBulb.setSaturation(newSat);
-                            lifxBulb.changeHsbk();
-                        }
-                        if(bulb instanceof HueBulb){
-                            int newSat = (int)(hsv[1] * 254);
-                            HueBulb hueBulb = (HueBulb) bulb;
-                            hueBulb.setSaturation(newSat);
-                            hueBulb.changeState();
-                        }
+                        int newSat = changeable instanceof LifxBulb ? (int)(hsv[1] * 65535) : (int)(hsv[1] * 254);
+                        changeable.setSaturation(newSat);
+                        changeable.changeState();
                     }
                 }
             }

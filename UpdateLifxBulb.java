@@ -13,7 +13,7 @@ public class UpdateLifxBulb extends AsyncTask<LightInfo, Void, Void> {
         if(info.getMacAddress().length() > 0)
         {
             if(info.isChangePower())
-                LifxBulb.findBulb(info.getMacAddress()).changePower(500);
+                LifxBulb.findBulb(info.getMacAddress()).changePower();
 
             if(info.isChangeBrightness() && info.getCurrentBrightness().intValue() > -1)
                 LifxBulb.findBulb(info.getMacAddress()).changeHsbk();

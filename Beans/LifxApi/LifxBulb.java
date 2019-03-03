@@ -9,6 +9,7 @@ import android.widget.ProgressBar;
 
 import com.augment.golden.bulbcontrol.Adapters.SmartBulbListAdapter;
 import com.augment.golden.bulbcontrol.Beans.SmartBulb;
+import com.augment.golden.bulbcontrol.Changeable;
 import com.augment.golden.bulbcontrol.R;
 import com.google.gson.Gson;
 
@@ -20,7 +21,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class LifxBulb extends SmartBulb {
+public class LifxBulb extends SmartBulb implements Changeable {
     private String location = "";
 
     private static Map<String, LifxBulb> bulbMap = new ConcurrentHashMap<>();
@@ -68,17 +69,6 @@ public class LifxBulb extends SmartBulb {
         Set<String> macAddresses = new HashSet<>(sharedPreferences.getStringSet("macAddresses", new HashSet<String>()));
         macAddresses.add(bulb.getId());
         editor.putStringSet("macAddresses", macAddresses);
-
-        Set<String> values = new HashSet<>();
-        values.add("label_" + bulb.getLabel());
-        values.add("group_" + bulb.getGroup());
-        values.add("location_" + bulb.getLocation());
-
-        values.add("hue_" + bulb.getHue());
-        values.add("saturation_" + bulb.getSaturation());
-        values.add("brightness_" + bulb.getBrightness());
-        values.add("kelvin_" + bulb.getKelvin());
-        editor.putStringSet(bulb.getId(), values);
         editor.apply();
     }
 
@@ -132,26 +122,9 @@ public class LifxBulb extends SmartBulb {
     public static LifxBulb getBulb(String macAddress, Context context){
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         LifxBulb bulb = new LifxBulb(macAddress);
-        Set<String> bulbInfo = sharedPreferences.getStringSet(macAddress, new HashSet<String>());
-        if(bulbInfo != null)
-            for (String info : bulbInfo) {
-                if(info.startsWith("label"))
-                    bulb.setLabel(info.substring(info.indexOf('_') + 1));
-                if(info.startsWith("group"))
-                    bulb.setGroup(info.substring(info.indexOf('_') + 1));
-                if(info.startsWith("location"))
-                    bulb.setLocation(info.substring(info.indexOf('_') + 1));
-
-                if(info.startsWith("hue"))
-                    bulb.setHue(Integer.parseInt(info.substring(info.indexOf('_') + 1)));
-                if(info.startsWith("saturation"))
-                    bulb.setSaturation(Integer.parseInt(info.substring(info.indexOf('_') + 1)));
-
-                if(info.startsWith("brightness"))
-                    bulb.setBrightness(Integer.parseInt(info.substring(info.indexOf('_') + 1)));
-                if(info.startsWith("kelvin"))
-                    bulb.setKelvin(Integer.parseInt(info.substring(info.indexOf('_') + 1)));
-            }
+        String bulbJSON = sharedPreferences.getString(macAddress, "");
+        Gson bulbJson = new Gson();
+        bulb = bulbJson.fromJson(bulbJSON, LifxBulb.class);
 
         return bulb;
     }
@@ -197,12 +170,38 @@ public class LifxBulb extends SmartBulb {
 
         return bulbs;
     }
-    public void changePower(int duration){
+    public void changePower(){
         LifxBulb bulb = this;
-        new Thread(() -> LifxWrapper.setPower(bulb.getId(), bulb.isOn(), duration)).start();
+        new Thread(() -> LifxWrapper.setPower(bulb.getId(), bulb.isOn(), 500)).start();
     }
 
     public void changeHsbk(){
+        LifxBulb bulb = this;
+        new Thread(() ->  LifxWrapper.setHSBK(bulb)).start();
+    }
+
+
+    public void changeBrightness(){
+        LifxBulb bulb = this;
+        new Thread(() ->  LifxWrapper.setHSBK(bulb)).start();
+    }
+
+    public void changeHue(){
+        LifxBulb bulb = this;
+        new Thread(() ->  LifxWrapper.setHSBK(bulb)).start();
+    }
+
+    public void changeSaturation(){
+        LifxBulb bulb = this;
+        new Thread(() ->  LifxWrapper.setHSBK(bulb)).start();
+    }
+
+    public void changeKelvin(){
+        LifxBulb bulb = this;
+        new Thread(() ->  LifxWrapper.setHSBK(bulb)).start();
+    }
+
+    public void changeState(){
         LifxBulb bulb = this;
         new Thread(() ->  LifxWrapper.setHSBK(bulb)).start();
     }

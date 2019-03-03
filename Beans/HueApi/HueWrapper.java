@@ -1,44 +1,49 @@
 package com.augment.golden.bulbcontrol.Beans.HueApi;
 
 public class HueWrapper {
+    String url = "";
+    RequestManager manager;
 
-    private static RequestManager stateManager(HueBulb bulb){
+    public HueWrapper(HueBulb bulb){
         HueBridge bridge = HueBridge.getBridge(bulb.getBridgeId());
-        String url = bridge.getInternalIpAddress() + "/api/" + bridge.getUsername() + "/lights/" + bulb.getId() + "/state";
-        return new RequestManager(url, "PUT");
+        this.url = bridge.getInternalIpAddress() + "/api/" + bridge.getUsername() + "/lights/" + bulb.getId() + "/state";
+        this.manager = new RequestManager(url, "PUT");
+    }
+    public HueWrapper(HueBulbGroup group){
+        HueBridge bridge = HueBridge.getBridge(group.getBridgeId());
+        String url = bridge.getInternalIpAddress() + "/api/" + bridge.getUsername() + "/lights/" + group.getName() + "/state";
+        this.manager = new RequestManager(url, "PUT");
     }
 
-    public static void changePower(HueBulb bulb){
-        RequestManager manager = stateManager(bulb);
-        manager.addData("on", bulb.isOn());
-        manager.sendData();
+    public void changePower(boolean on){
+        RequestManager manager = this.manager;
+        manager.addData("on", on);
     }
-    public static void changeBrightness(HueBulb bulb){
-        RequestManager manager = stateManager(bulb);
-        manager.addData("bri", bulb.getBrightness());
-        manager.sendData();
+    public void changeBrightness(int brightness){
+        RequestManager manager = this.manager;
+        manager.addData("bri", brightness);
     }
-    public static void changeHue(HueBulb bulb){
-        RequestManager manager = stateManager(bulb);
-        manager.addData("hue", bulb.getHue());
-        manager.sendData();
+    public void changeHue(int hue){
+        RequestManager manager = this.manager;
+        manager.addData("hue", hue);
     }
-    public static void changeSaturation(HueBulb bulb){
-        RequestManager manager = stateManager(bulb);
-        manager.addData("sat", bulb.getSaturation());
-        manager.sendData();
+    public void changeSaturation(int saturation){
+        RequestManager manager = this.manager;
+        manager.addData("sat", saturation);
     }
-    public static void changeKelvin(HueBulb bulb){
-        RequestManager manager = stateManager(bulb);
-        manager.addData("ct", bulb.getKelvin());
-        manager.sendData();
+    public void changeKelvin(int kelvin){
+        RequestManager manager = this.manager;
+        manager.addData("ct", kelvin);
     }
-    public static void changeState(HueBulb bulb){
-        RequestManager manager = stateManager(bulb);
-        manager.addData("on", bulb.isOn());
-        manager.addData("bri", bulb.getBrightness());
-        manager.addData("hue", bulb.getHue());
-        manager.addData("sat", bulb.getSaturation());
+    public void changeState(boolean on, int brightness, int hue, int saturation){
+        changePower(on);
+        changeBrightness(brightness);
+        changeHue(hue);
+        changeSaturation(saturation);
+        send();
+    }
+
+    public void send(){
         manager.sendData();
     }
 }

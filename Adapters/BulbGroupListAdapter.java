@@ -15,12 +15,10 @@ import android.widget.TextView;
 
 import com.augment.golden.bulbcontrol.Activities.BulbActivity;
 import com.augment.golden.bulbcontrol.Beans.SmartBulb;
-import com.augment.golden.bulbcontrol.BulbActionListners;
 import com.augment.golden.bulbcontrol.BulbGroup;
+import com.augment.golden.bulbcontrol.OnChangeListeners.BulbGroupActionListeners;
 import com.augment.golden.bulbcontrol.R;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -43,8 +41,8 @@ public class BulbGroupListAdapter extends RecyclerView.Adapter<BulbGroupListAdap
     }
 
 
-    public BulbGroupListAdapter(List<SmartBulb> bulbs, Context context){
-        mBulbGroups = BulbGroup.convertBulbsToGroup(bulbs);
+    public BulbGroupListAdapter(List<BulbGroup> groups, Context context){
+        mBulbGroups = groups;
         this.context = context;
         groupMap = new ConcurrentHashMap<>();
     }
@@ -60,9 +58,9 @@ public class BulbGroupListAdapter extends RecyclerView.Adapter<BulbGroupListAdap
 
     @Override
     public void onBindViewHolder(GroupViewHolder holder, final int position){
-        holder.mTextView.setText(mBulbGroups.get(position).getLabel());
+        holder.mTextView.setText(mBulbGroups.get(position).getName());
 
-//        holder.mImageView.setOnClickListener(new BulbActionListners(mBulbGroups.get(position)).getBulbImageListener());
+        holder.mImageView.setOnClickListener(new BulbGroupActionListeners(mBulbGroups.get(position)).getBulbImageListener());
 
         holder.itemView.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -100,7 +98,7 @@ public class BulbGroupListAdapter extends RecyclerView.Adapter<BulbGroupListAdap
         mBulbGroups.add(group);
         this.notifyDataSetChanged();
     }
-    public void addAll(List<SmartBulb> bulbs){
-        BulbGroup.convertBulbsToGroup(bulbs).forEach(this::add);
+    public void addAll(List<BulbGroup> groups){
+        groups.forEach(this::add);
     }
 }

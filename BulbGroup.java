@@ -8,13 +8,16 @@ import java.util.List;
 import java.util.Map;
 
 public class BulbGroup {
-    private String label = "";
     private List<SmartBulb> bulbs;
+    private String name = "";
 
     public BulbGroup(){}
-    public BulbGroup(String label, List<SmartBulb> bulbs){
-        this.label = label;
+    public BulbGroup(String name, List<SmartBulb> bulbs){
+        this.name = name;
         this.bulbs = bulbs;
+    }
+    public BulbGroup(String name){
+        this.name = name;
     }
 
     public static List<BulbGroup> convertBulbsToGroup(List<SmartBulb> bulbs){
@@ -26,19 +29,19 @@ public class BulbGroup {
         return groups;
     }
 
-    public String getLabel() {
-        return label;
-    }
-
-    public void setLabel(String label) {
-        this.label = label;
-    }
-
     public List<SmartBulb> getBulbs() {
         return bulbs;
     }
 
     public void setBulbs(List<SmartBulb> bulbs) {
         this.bulbs = bulbs;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

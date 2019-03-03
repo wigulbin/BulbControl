@@ -15,7 +15,7 @@ public class BulbTask extends AsyncTask<LightInfo, Void, String> {
         String answer = "";
         if(info.isChangePower())
             if(info.getMacAddress().length() > 0)
-                LifxBulb.findBulb(info.getMacAddress()).changePower(500);
+                LifxBulb.findBulb(info.getMacAddress()).changePower();
 
         if(info.isChangeBrightness() && info.getCurrentBrightness().intValue() > -1)
             if(info.getMacAddress().length() > 0)

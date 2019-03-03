@@ -1,11 +1,14 @@
 package com.augment.golden.bulbcontrol.Beans.HueApi;
 
+import com.augment.golden.bulbcontrol.BulbGroup;
+import com.augment.golden.bulbcontrol.Changeable;
+
 import java.util.List;
 
-public class HueBulbGroup {
-    private String name = "";
+public class HueBulbGroup extends BulbGroup implements Changeable {
     private List<String> lights;
     private String type;
+    private String bridgeId;
 
     private boolean on;
     private int brightness;
@@ -16,15 +19,7 @@ public class HueBulbGroup {
 
 
     public HueBulbGroup(String name) {
-        this.name = name;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
+        super(name);
     }
 
     public List<String> getLights() {
@@ -89,5 +84,39 @@ public class HueBulbGroup {
 
     public void setKelvin(int kelvin) {
         this.kelvin = kelvin;
+    }
+
+    public String getBridgeId() {
+        return bridgeId;
+    }
+
+    public void setBridgeId(String bridgeId) {
+        this.bridgeId = bridgeId;
+    }
+
+
+    public void changePower(){
+        HueBulbGroup group = this;
+        new Thread(() -> new HueWrapper(group).changePower(group.on)).start();
+    }
+    public void changeBrightness(){
+        HueBulbGroup group = this;
+        new Thread(() -> new HueWrapper(group).changeBrightness(group.brightness)).start();
+    }
+    public void changeHue(){
+        HueBulbGroup group = this;
+        new Thread(() -> new HueWrapper(group).changeHue(group.hue)).start();
+    }
+    public void changeSaturation(){
+        HueBulbGroup group = this;
+        new Thread(() -> new HueWrapper(group).changeSaturation(group.saturation)).start();
+    }
+    public void changeKelvin(){
+        HueBulbGroup group = this;
+        new Thread(() -> new HueWrapper(group).changeKelvin(group.kelvin)).start();
+    }
+    public void changeState(){
+        HueBulbGroup group = this;
+        new Thread(() -> new HueWrapper(group).changeState(group.on, group.brightness, group.hue, group.saturation)).start();
     }
 }

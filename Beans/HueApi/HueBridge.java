@@ -5,6 +5,8 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
 import com.augment.golden.bulbcontrol.Beans.LifxApi.LifxBulb;
+import com.augment.golden.bulbcontrol.BulbGroup;
+import com.google.gson.Gson;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -46,10 +48,15 @@ public class HueBridge {
                 for(int i = 0; i < jsonArray.length(); i++){
                     JSONObject bridgeJson = jsonArray.getJSONObject(i);
                     String id = bridgeJson.getString("id");
-                    boolean exists = bridgeIds.add(id);
-
-                    editor.putString(id + "-ip", bridgeJson.getString("internalipaddress"));
-                    editor.apply();
+                    if(!bridgeIds.contains(id)){
+                        bridgeIds.add(id);
+                        HueBridge bridge = new HueBridge();
+                        bridge.setId(id);
+                        bridge.setInternalIpAddress(bridgeJson.getString("internalipaddress"));
+                        Gson gson = new Gson();
+                        editor.putString(id, gson.toJson(bridge));
+                        editor.apply();
+                    }
                 }
                 editor.putStringSet("hue_bridges", bridgeIds);
                 editor.apply();
@@ -78,14 +85,8 @@ public class HueBridge {
     }
     public static HueBridge retrieveBridge(String id, Context context){
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-        HueBridge bridge = new HueBridge();
-        String ip = sharedPreferences.getString(id + "-ip", "");
-        bridge.setId(id);
-        bridge.setInternalIpAddress(ip);
-        bridge.setUsername(sharedPreferences.getString(id + "-username", ""));
-        bridgeMap.put(id, bridge);
-
-        return bridge;
+        Gson json = new Gson();
+        return json.fromJson(sharedPreferences.getString(id, ""), HueBridge.class);
     }
 
     public static List<HueBulb> findAllBulbs(Context context){
@@ -98,6 +99,38 @@ public class HueBridge {
         return bulbs;
     }
 
+    public static List<BulbGroup> retrieveGroups(Context context){
+        List<BulbGroup> groups = new ArrayList<>();
+
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        Set<String> bridgeIds = sharedPreferences.getStringSet("groupIds", new HashSet<>());
+        for (String groupId : bridgeIds) {
+            groups.add(retrieveGroup(groupId, context));
+        }
+        return groups;
+    }
+    public static HueBulbGroup retrieveGroup(String id, Context context){
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        Gson json = new Gson();
+        return json.fromJson(sharedPreferences.getString(id, ""), HueBulbGroup.class);
+    }
+
+    public void findAndSaveGroups(Context context){
+        List<HueBulbGroup> groups = findGroups();
+
+        Set<String> groupIds = new HashSet<>();
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        for (HueBulbGroup group : groups) {
+            Gson gson = new Gson();
+            editor.putString(group.getName(), gson.toJson(group));
+            groupIds.add(group.getName());
+        }
+
+        editor.putStringSet("groupIds", groupIds);
+        editor.apply();
+    }
+
     public List<HueBulbGroup> findGroups(){
         List<HueBulbGroup> groups = new ArrayList<>();
         RequestManager manager = new RequestManager(this.getInternalIpAddress() + "/api/" + this.getUsername() + "/groups", "GET");
@@ -106,6 +139,7 @@ public class HueBridge {
             int i = 1;
             while(response.has(i + "")){
                 HueBulbGroup group = parseGroupJSON(response.getJSONObject(i + ""), i, this.getId());
+
                 if(group != null) groups.add(group);
                 i++;
             }
@@ -139,7 +173,7 @@ public class HueBridge {
         try{
             group = new HueBulbGroup(json.getString("name"));
             group.setType(json.getString("type"));
-            JSONObject state = json.getJSONObject("state");
+            JSONObject state = json.getJSONObject("action");
             group.setOn(state.getBoolean("on"));
             group.setBrightness(state.getInt("bri"));
             group.setHue(state.getInt("hue"));
@@ -176,8 +210,8 @@ public class HueBridge {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor editor = sharedPreferences.edit();
 
-        editor.putString(id + "-ip", internalIpAddress);
-        editor.putString(id + "-username", username);
+        Gson bridgeJson = new Gson();
+        editor.putString(this.getId(), bridgeJson.toJson(this));
         editor.apply();
     }
 
