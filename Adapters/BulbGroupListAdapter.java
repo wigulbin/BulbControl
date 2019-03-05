@@ -16,7 +16,9 @@ import android.widget.TextView;
 import com.augment.golden.bulbcontrol.Activities.BulbActivity;
 import com.augment.golden.bulbcontrol.Beans.SmartBulb;
 import com.augment.golden.bulbcontrol.BulbGroup;
+import com.augment.golden.bulbcontrol.Changeable;
 import com.augment.golden.bulbcontrol.OnChangeListeners.BulbGroupActionListeners;
+import com.augment.golden.bulbcontrol.OnChangeListeners.ChangeableActionListeners;
 import com.augment.golden.bulbcontrol.R;
 
 import java.util.List;
@@ -60,7 +62,8 @@ public class BulbGroupListAdapter extends RecyclerView.Adapter<BulbGroupListAdap
     public void onBindViewHolder(GroupViewHolder holder, final int position){
         holder.mTextView.setText(mBulbGroups.get(position).getName());
 
-        holder.mImageView.setOnClickListener(new BulbGroupActionListeners(mBulbGroups.get(position)).getBulbImageListener());
+        Changeable changeable = (Changeable) mBulbGroups.get(position);
+        holder.mImageView.setOnClickListener(new ChangeableActionListeners(changeable).getBulbImageListener());
 
         holder.itemView.setOnClickListener(new View.OnClickListener(){
             @Override

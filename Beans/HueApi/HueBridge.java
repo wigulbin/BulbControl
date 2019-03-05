@@ -80,6 +80,7 @@ public class HueBridge {
                 bridges.add(bridge);
             }
         }
+        bridges.forEach(bridge -> bridgeMap.put(bridge.getId(), bridge));
 
         return bridges;
     }
@@ -92,9 +93,7 @@ public class HueBridge {
     public static List<HueBulb> findAllBulbs(Context context){
         List<HueBulb> bulbs = new ArrayList<>();
         List<HueBridge> bridges = retrieveBridges(context);
-        for (HueBridge bridge : bridges) {
-            bulbs.addAll(bridge.findBulbs());
-        }
+        bridges.forEach(bridge -> bulbs.addAll(bridge.findBulbs(context)));
 
         return bulbs;
     }
@@ -150,7 +149,7 @@ public class HueBridge {
         return groups;
     }
 
-    public List<HueBulb> findBulbs(){
+    public List<HueBulb> findBulbs(Context context){
         List<HueBulb> bulbs = new ArrayList<>();
         RequestManager manager = new RequestManager(this.getInternalIpAddress() + "/api/" + this.getUsername() + "/lights", "GET");
         try{
@@ -158,7 +157,10 @@ public class HueBridge {
             int i = 1;
             while(response.has(i + "")){
                 HueBulb bulb = parseBulbJSON(response.getJSONObject(i + ""), i, this.getId());
-                if(bulb != null) bulbs.add(bulb);
+                if(bulb != null) {
+                    bulbs.add(bulb);
+                    bulb.save(context);
+                }
                 i++;
             }
         }catch (Exception e){
@@ -179,6 +181,8 @@ public class HueBridge {
             group.setHue(state.getInt("hue"));
             group.setSaturation(state.getInt("sat"));
             group.setKelvin(state.getInt("ct"));
+            group.setBridgeId(bridgeId);
+            group.setId(id + "");
 
         }catch (Exception e){
             e.printStackTrace();

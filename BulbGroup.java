@@ -10,6 +10,7 @@ import java.util.Map;
 public class BulbGroup {
     private List<SmartBulb> bulbs;
     private String name = "";
+    private String id = "";
 
     public BulbGroup(){}
     public BulbGroup(String name, List<SmartBulb> bulbs){
@@ -43,5 +44,13 @@ public class BulbGroup {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 }

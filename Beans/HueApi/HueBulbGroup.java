@@ -97,23 +97,23 @@ public class HueBulbGroup extends BulbGroup implements Changeable {
 
     public void changePower(){
         HueBulbGroup group = this;
-        new Thread(() -> new HueWrapper(group).changePower(group.on)).start();
+        new Thread(() -> new HueWrapper(group).changePower(group.on).send()).start();
     }
     public void changeBrightness(){
         HueBulbGroup group = this;
-        new Thread(() -> new HueWrapper(group).changeBrightness(group.brightness)).start();
+        new Thread(() -> new HueWrapper(group).changeBrightness(group.brightness).send()).start();
     }
     public void changeHue(){
         HueBulbGroup group = this;
-        new Thread(() -> new HueWrapper(group).changeHue(group.hue)).start();
+        new Thread(() -> new HueWrapper(group).changeHue(group.hue).send()).start();
     }
     public void changeSaturation(){
         HueBulbGroup group = this;
-        new Thread(() -> new HueWrapper(group).changeSaturation(group.saturation)).start();
+        new Thread(() -> new HueWrapper(group).changeSaturation(group.saturation).send()).start();
     }
     public void changeKelvin(){
         HueBulbGroup group = this;
-        new Thread(() -> new HueWrapper(group).changeKelvin(group.kelvin)).start();
+        new Thread(() -> new HueWrapper(group).changeKelvin(group.kelvin).send()).start();
     }
     public void changeState(){
         HueBulbGroup group = this;

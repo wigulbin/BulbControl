@@ -9,7 +9,9 @@ import com.augment.golden.bulbcontrol.Beans.SmartBulb;
 import com.augment.golden.bulbcontrol.Changeable;
 import com.google.gson.Gson;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -35,7 +37,8 @@ public class HueBulb extends SmartBulb implements Changeable {
         this.bridgeId = bridgeId;
     }
 
-    public static void saveBulb(HueBulb bulb, Context context){
+    public void save(Context context){
+        HueBulb bulb = this;
         bulbMap.put(bulb.getId(), bulb);
 
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
@@ -47,9 +50,9 @@ public class HueBulb extends SmartBulb implements Changeable {
         editor.putString(bulb.getId(), bulbJson.toJson(bulb));
 
         // Find/Replace mac address
-        Set<String> macAddresses = new HashSet<>(sharedPreferences.getStringSet("macAddresses", new HashSet<String>()));
+        Set<String> macAddresses = new HashSet<>(sharedPreferences.getStringSet("hueids", new HashSet<String>()));
         macAddresses.add(bulb.getId());
-        editor.putStringSet("macAddresses", macAddresses);
+        editor.putStringSet("hueids", macAddresses);
         editor.apply();
     }
 
@@ -58,6 +61,25 @@ public class HueBulb extends SmartBulb implements Changeable {
 
         Set<String> macAddresses = sharedPreferences.getStringSet("macAddresses", new HashSet<String>());
         return macAddresses.contains(bulb.getId());
+    }
+
+
+    public static List<HueBulb> getHueBulbs(Context context){
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        List<HueBulb> bulbs = new ArrayList<>();
+
+        Set<String> macs = sharedPreferences.getStringSet("hueids", new HashSet<String>());
+        if(macs != null)
+        {
+            for (String mac : macs)
+            {
+                HueBulb bulb = getBulb(mac, context);
+                bulbs.add(bulb);
+                bulbMap.put(bulb.getId(), bulb);
+            }
+        }
+
+        return bulbs;
     }
 
     public static HueBulb getBulb(String id, Context context){
@@ -87,23 +109,23 @@ public class HueBulb extends SmartBulb implements Changeable {
 
     public void changePower(){
         HueBulb bulb = this;
-        new Thread(() -> new HueWrapper(bulb).changePower(bulb.isOn())).start();
+        new Thread(() -> new HueWrapper(bulb).changePower(bulb.isOn()).send()).start();
     }
     public void changeBrightness(){
         HueBulb bulb = this;
-        new Thread(() -> new HueWrapper(bulb).changeBrightness(bulb.getBrightness())).start();
+        new Thread(() -> new HueWrapper(bulb).changeBrightness(bulb.getBrightness()).send()).start();
     }
     public void changeHue(){
         HueBulb bulb = this;
-        new Thread(() -> new HueWrapper(bulb).changeHue(bulb.getHue())).start();
+        new Thread(() -> new HueWrapper(bulb).changeHue(bulb.getHue()).send()).start();
     }
     public void changeSaturation(){
         HueBulb bulb = this;
-        new Thread(() -> new HueWrapper(bulb).changeSaturation(bulb.getSaturation())).start();
+        new Thread(() -> new HueWrapper(bulb).changeSaturation(bulb.getSaturation()).send()).start();
     }
     public void changeKelvin(){
         HueBulb bulb = this;
-        new Thread(() -> new HueWrapper(bulb).changeKelvin(bulb.getKelvin())).start();
+        new Thread(() -> new HueWrapper(bulb).changeKelvin(bulb.getKelvin()).send()).start();
     }
     public void changeState(){
         HueBulb bulb = this;

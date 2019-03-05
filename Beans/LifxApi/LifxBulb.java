@@ -50,7 +50,7 @@ public class LifxBulb extends SmartBulb implements Changeable {
     public static void clearBulbs(Context context){
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.clear();
+        editor.remove("macAddresses");
         editor.apply();
     }
 
@@ -97,9 +97,9 @@ public class LifxBulb extends SmartBulb implements Changeable {
         return bulbs;
     }
 
-    public static List<SmartBulb> getAllBulbsAsSmartBulbs(Context context){
+    public static List<LifxBulb> getLifxBulbs(Context context){
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-        List<SmartBulb> bulbs = new ArrayList<>();
+        List<LifxBulb> bulbs = new ArrayList<>();
 
         Set<String> macs = sharedPreferences.getStringSet("macAddresses", new HashSet<String>());
         if(macs != null)

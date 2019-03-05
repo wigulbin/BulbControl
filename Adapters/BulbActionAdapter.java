@@ -13,7 +13,10 @@ import android.widget.SeekBar;
 
 import com.augment.golden.bulbcontrol.Beans.HueApi.HueBulb;
 import com.augment.golden.bulbcontrol.Beans.SmartBulb;
+import com.augment.golden.bulbcontrol.Changeable;
 import com.augment.golden.bulbcontrol.OnChangeListeners.BulbActionListeners;
+import com.augment.golden.bulbcontrol.OnChangeListeners.BulbGroupActionListeners;
+import com.augment.golden.bulbcontrol.OnChangeListeners.ChangeableActionListeners;
 import com.augment.golden.bulbcontrol.R;
 import com.larswerkman.holocolorpicker.ColorPicker;
 import com.larswerkman.holocolorpicker.SaturationBar;
@@ -27,12 +30,14 @@ public class BulbActionAdapter extends RecyclerView.Adapter {
     private Activity activity;
     private SmartBulb bulb;
     private BulbActionListeners listeners;
+    private ChangeableActionListeners changeableActionListeners;
 
     public BulbActionAdapter(SmartBulb bulb, Activity activity){
         holderMap = new HashMap<>();
         this.bulb = bulb;
         this.activity = activity;
         listeners = new BulbActionListeners(bulb);
+        changeableActionListeners = new ChangeableActionListeners((Changeable)bulb);
     }
 
     public static class BulbColorActionViewHolder extends RecyclerView.ViewHolder{

@@ -55,7 +55,7 @@ public class MainActivity extends WearableActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        LifxBulb.clearBulbs(this);
+        LifxBulb.clearBulbs(this);
 
         mActivity = this;
         setContentView(R.layout.activity_main);
@@ -67,15 +67,21 @@ public class MainActivity extends WearableActivity {
         spinner = findViewById(R.id.progressBar);
         spinner.setVisibility(View.GONE);
         mBridgesLeft = new AtomicInteger(0);
-
+        HueBridge.retrieveBridges(getApplicationContext());
         mRecyclerView.setLayoutManager(new WearableLinearLayoutManager(this));
         CustomScrollingLayoutCallback customScrollingLayoutCallback = new CustomScrollingLayoutCallback();
         mRecyclerView.setLayoutManager(new WearableLinearLayoutManager(this, customScrollingLayoutCallback));
 
         mMainRefresh = findViewById(R.id.main_refresh);
-        List<SmartBulb> bulbs = LifxBulb.getAllBulbsAsSmartBulbs(this);
+        List<LifxBulb> lifxBulbs = LifxBulb.getLifxBulbs(this);
+        List<HueBulb> hueBulbs = HueBulb.getHueBulbs(this);
+
+        List<SmartBulb> bulbs = new ArrayList<>();
+        bulbs.addAll(lifxBulbs);
+        bulbs.addAll(hueBulbs);
+
         List<BulbGroup> groups = HueBridge.retrieveGroups(this);
-        if(bulbs.size() == 0){
+        if(bulbs.size() == 0 && SmartBulb.singleView){
             ImageView mainRefresh = findViewById(R.id.main_refresh_button);
             int color = Color.parseColor("#FFFFFF"); //The color you want
             mainRefresh.setColorFilter(color);
