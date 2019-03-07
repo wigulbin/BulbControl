@@ -8,17 +8,17 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 
-import com.augment.golden.bulbcontrol.Beans.HueApi.HueBulb;
 import com.augment.golden.bulbcontrol.Beans.HueApi.HueBulbGroup;
 import com.augment.golden.bulbcontrol.Beans.LifxApi.LifxBulb;
 import com.augment.golden.bulbcontrol.Beans.SmartBulb;
 import com.augment.golden.bulbcontrol.BulbAnimations;
-import com.augment.golden.bulbcontrol.BulbGroup;
 import com.augment.golden.bulbcontrol.Changeable;
 import com.augment.golden.bulbcontrol.KelvinTable;
 import com.larswerkman.holocolorpicker.ColorPicker;
 import com.larswerkman.holocolorpicker.SaturationBar;
 
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -32,6 +32,13 @@ public class ChangeableActionListeners {
 
     public SeekBar.OnSeekBarChangeListener getWarmthSeekBarChangeListener(){
         AtomicInteger prevProg = new AtomicInteger();
+        TimerWrapper wrapper = new TimerWrapper() {
+            @Override
+            public void doUpdate(int kelvin, int number2) {
+                changeable.setKelvin(kelvin);
+                changeable.changeKelvin();
+            }
+        };
         return new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -52,8 +59,7 @@ public class ChangeableActionListeners {
 
                     seekBar.getProgressDrawable().setColorFilter(Color.parseColor(hex), PorterDuff.Mode.SRC_IN);
                     seekBar.getThumb().setColorFilter(Color.parseColor(hex), PorterDuff.Mode.SRC_IN);
-                    changeable.setKelvin(kelvin);
-                    changeable.changeKelvin();
+                    wrapper.reset(kelvin, 0);
                 }
             }
 
@@ -68,6 +74,7 @@ public class ChangeableActionListeners {
         };
     }
 
+    //Prevent screen from moving on touch
     public View.OnTouchListener getSeekBarTouchListener(ConstraintLayout layout){
         return new View.OnTouchListener() {
             @Override
@@ -83,6 +90,15 @@ public class ChangeableActionListeners {
 
     public SeekBar.OnSeekBarChangeListener getBrightnessSeekBarChangeListener(ImageView image){
         AtomicInteger prevProg = new AtomicInteger();
+        AtomicInteger prevBright = new AtomicInteger();
+
+        TimerWrapper wrapper = new TimerWrapper() {
+            @Override
+            public void doUpdate(int number, int number2) {
+                changeable.setBrightness(number);
+                changeable.changeBrightness();
+            }
+        };
         return new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -97,8 +113,8 @@ public class ChangeableActionListeners {
                     else
                         brightness = (int) ((progress/65535f) * 254);
 
-                    changeable.setBrightness(brightness);
-                    changeable.changeState();
+                    wrapper.reset(brightness, 0);
+                    prevBright.set(brightness);
                 }
             }
 
@@ -172,48 +188,44 @@ public class ChangeableActionListeners {
     }
 
     public ColorPicker.OnColorChangedListener createColorChangeListener() {
-        AtomicInteger prevHue = new AtomicInteger();
+        TimerWrapper wrapper = new TimerWrapper() {
+            @Override
+            public void doUpdate(int hue, int saturation) {
+                changeable.setHue(hue);
+                changeable.setSaturation(hue);
+                changeable.changeHue();
+            }
+        };
         return new ColorPicker.OnColorChangedListener() {
             @Override
             public void onColorChanged(int color) {
                 if(color != 0){
                     float[] hsv = new float[3];
                     Color.RGBToHSV(Color.red(color), Color.green(color), Color.blue(color), hsv);
-
-                    int differenceH = getDifference(prevHue.get(), (int)hsv[0]);
-
-                    if(differenceH > 10)
-                    {
-                        int newColor = (int)((hsv[0]/360) * 65535);
-                        int newSat = (changeable instanceof LifxBulb) ? (int)(hsv[1] * 65535) : (int)(hsv[1] * 254);
-
-                        prevHue.set(newColor);
-
-                        changeable.setHue(newColor);
-                        changeable.setSaturation(newSat);
-                        changeable.changeState();
-                    }
+                    int newColor = (int)((hsv[0]/360) * 65535);
+                    int newSat = (changeable instanceof LifxBulb) ? (int)(hsv[1] * 65535) : (int)(hsv[1] * 254);
+                    wrapper.reset(newColor, newSat);
                 }
             }
         };
     }
 
     public SaturationBar.OnSaturationChangedListener createSaturationChangeListener() {
-        AtomicLong prevSaturation = new AtomicLong();
+        TimerWrapper wrapper = new TimerWrapper() {
+            @Override
+            public void doUpdate(int newSat, int num2) {
+                changeable.setSaturation(newSat);
+                changeable.changeState();
+            }
+        };
         return new SaturationBar.OnSaturationChangedListener() {
             @Override
             public void onSaturationChanged(int color) {
                 if(color != 0){
                     float[] hsv = new float[3];
                     Color.RGBToHSV(Color.red(color), Color.green(color), Color.blue(color), hsv);
-                    if(hsv[1] - prevSaturation.get() > 0.02)
-                    {
-                        prevSaturation.set((long)hsv[1]);
-
-                        int newSat = changeable instanceof LifxBulb ? (int)(hsv[1] * 65535) : (int)(hsv[1] * 254);
-                        changeable.setSaturation(newSat);
-                        changeable.changeState();
-                    }
+                    int newSat = changeable instanceof LifxBulb ? (int)(hsv[1] * 65535) : (int)(hsv[1] * 254);
+                    wrapper.reset(newSat, 0);
                 }
             }
         };
@@ -252,5 +264,46 @@ public class ChangeableActionListeners {
     }
     private int getDifference(int x, int y){
         return Math.max(x, y) - Math.min(x, y);
+    }
+
+
+
+    private abstract class TimerWrapper{
+        TimerTask timerTask;
+        Timer timer = new Timer();
+        AtomicInteger current;
+        AtomicInteger current2;
+
+        public TimerWrapper(){
+            current = new AtomicInteger();
+            current2 = new AtomicInteger();
+            timer = new Timer();
+            timerTask = new TimerTask() {
+                @Override
+                public void run() {
+                    timer.cancel();
+                }
+            };
+        }
+
+        abstract public void doUpdate(int number, int number2);
+
+
+        public void reset(int number, int number2){
+            timer.cancel();
+            timerTask.cancel();
+            current.set(number);
+            current2.set(number2);
+            timer = new Timer();
+            timerTask = new TimerTask() {
+                @Override
+                public void run() {
+                    doUpdate(current.intValue(), current2.intValue());
+                    timer.cancel();
+                }
+            };
+            timer.schedule(timerTask, 500);
+        }
+
     }
 }

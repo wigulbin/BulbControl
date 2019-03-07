@@ -19,4 +19,10 @@ public interface Changeable {
     public void setKelvin(int kelvin);
     public void setBrightness(int brightness);
     public void setOn(boolean on);
+
+
+    public void incrementHue(int amount);
+    public void incrementSaturation(int amount);
+    public void incrementKelvin(int amount);
+    public void incrementBrightness(int amount);
 }

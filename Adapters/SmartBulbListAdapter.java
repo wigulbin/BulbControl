@@ -14,6 +14,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.augment.golden.bulbcontrol.Activities.BulbActivity;
+import com.augment.golden.bulbcontrol.Beans.LifxApi.LifxBulb;
 import com.augment.golden.bulbcontrol.Beans.SmartBulb;
 import com.augment.golden.bulbcontrol.OnChangeListeners.BulbActionListeners;
 import com.augment.golden.bulbcontrol.R;
@@ -77,7 +78,9 @@ public class SmartBulbListAdapter extends RecyclerView.Adapter<SmartBulbListAdap
                 SmartBulb bulb = mBulbs.get(position);
 
                 Intent intent = new Intent(context, BulbActivity.class);
-                intent.putExtra("mac", bulb.getId());
+                intent.putExtra("id", bulb.getId());
+                String type = bulb instanceof LifxBulb ? "lifx" : "hue";
+                intent.putExtra("type", type);
                 context.startActivity(intent);
             }
         });

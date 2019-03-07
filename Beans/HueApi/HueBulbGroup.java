@@ -119,4 +119,35 @@ public class HueBulbGroup extends BulbGroup implements Changeable {
         HueBulbGroup group = this;
         new Thread(() -> new HueWrapper(group).changeState(group.on, group.brightness, group.hue, group.saturation)).start();
     }
+
+
+
+    @Override
+    public void incrementHue(int amount) {
+        HueBulbGroup bulb = this;
+        bulb.setHue(amount + bulb.getHue());
+        new Thread(() -> new HueWrapper(bulb).incrementHue(amount).send()).start();
+    }
+
+    @Override
+    public void incrementSaturation(int amount) {
+        HueBulbGroup bulb = this;
+        bulb.setSaturation(amount + bulb.getSaturation());
+        new Thread(() -> new HueWrapper(bulb).incrementSaturation(amount).send()).start();
+    }
+
+    @Override
+    public void incrementKelvin(int amount) {
+        HueBulbGroup bulb = this;
+        bulb.setKelvin(amount + bulb.getKelvin());
+        new Thread(() -> new HueWrapper(bulb).incrementKelvin(amount).send()).start();
+
+    }
+
+    @Override
+    public void incrementBrightness(int amount) {
+        HueBulbGroup bulb = this;
+        bulb.setBrightness(bulb.getBrightness() + amount);
+        new Thread(() -> new HueWrapper(bulb).incrementBrightness(amount).send()).start();
+    }
 }

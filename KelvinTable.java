@@ -34,11 +34,11 @@ public class KelvinTable {
 //        kelvinColorArr.put(1700, "255:121:0");
 //        kelvinColorArr.put(1800, "255:126:0");
 //        kelvinColorArr.put(1900, "255:131:0");
-//        kelvinColorArr.put(2000, "255:138:18");
-//        kelvinColorArr.put(2100, "255:142:33");
-//        kelvinColorArr.put(2200, "255:147:44");
-//        kelvinColorArr.put(2300, "255:152:54");
-//        kelvinColorArr.put(2400, "255:157:63");
+        kelvinColorArr.put(2000, "255:138:18");
+        kelvinColorArr.put(2100, "255:142:33");
+        kelvinColorArr.put(2200, "255:147:44");
+        kelvinColorArr.put(2300, "255:152:54");
+        kelvinColorArr.put(2400, "255:157:63");
         kelvinColorArr.put(2500, "255:161:72");
         kelvinColorArr.put(2600, "255:165:79");
         kelvinColorArr.put(2700, "255:169:87");

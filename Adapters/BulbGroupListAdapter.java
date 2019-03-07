@@ -77,7 +77,8 @@ public class BulbGroupListAdapter extends RecyclerView.Adapter<BulbGroupListAdap
                 BulbGroup bulb = mBulbGroups.get(position);
 
                 Intent intent = new Intent(context, BulbActivity.class);
-//                intent.putExtra("mac", bulb.getId());
+                intent.putExtra("id", bulb.getId());
+                intent.putExtra("type", "hueGroup");
                 context.startActivity(intent);
             }
         });

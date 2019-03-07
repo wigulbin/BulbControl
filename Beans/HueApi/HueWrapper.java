@@ -40,6 +40,27 @@ public class HueWrapper {
         manager.addData("ct", kelvin);
         return this;
     }
+
+    public HueWrapper incrementBrightness(int amount){
+        RequestManager manager = this.manager;
+        manager.addData("bri_inc", amount);
+        return this;
+    }
+    public HueWrapper incrementHue(int amount){
+        RequestManager manager = this.manager;
+        manager.addData("hue_inc", amount);
+        return this;
+    }
+    public HueWrapper incrementSaturation(int amount){
+        RequestManager manager = this.manager;
+        manager.addData("sat_inc", amount);
+        return this;
+    }
+    public HueWrapper incrementKelvin(int amount){
+        RequestManager manager = this.manager;
+        manager.addData("ct_inc", amount);
+        return this;
+    }
     public void changeState(boolean on, int brightness, int hue, int saturation){
         changePower(on);
         changeBrightness(brightness);
@@ -49,6 +70,6 @@ public class HueWrapper {
     }
 
     public void send(){
-        manager.sendData();
+        System.out.println(manager.sendData());
     }
 }

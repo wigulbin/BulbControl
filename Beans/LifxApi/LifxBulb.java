@@ -8,6 +8,8 @@ import android.view.View;
 import android.widget.ProgressBar;
 
 import com.augment.golden.bulbcontrol.Adapters.SmartBulbListAdapter;
+import com.augment.golden.bulbcontrol.Beans.HueApi.HueBulb;
+import com.augment.golden.bulbcontrol.Beans.HueApi.HueWrapper;
 import com.augment.golden.bulbcontrol.Beans.SmartBulb;
 import com.augment.golden.bulbcontrol.Changeable;
 import com.augment.golden.bulbcontrol.R;
@@ -206,4 +208,34 @@ public class LifxBulb extends SmartBulb implements Changeable {
         new Thread(() ->  LifxWrapper.setHSBK(bulb)).start();
     }
 
+
+
+    @Override
+    public void incrementHue(int amount) {
+        LifxBulb bulb = this;
+        bulb.setHue(amount + bulb.getHue());
+        bulb.changeState();
+    }
+
+    @Override
+    public void incrementSaturation(int amount) {
+        LifxBulb bulb = this;
+        bulb.setSaturation(amount + bulb.getSaturation());
+        bulb.changeState();
+    }
+
+    @Override
+    public void incrementKelvin(int amount) {
+        LifxBulb bulb = this;
+        bulb.setKelvin(amount + bulb.getKelvin());
+        bulb.changeState();
+
+    }
+
+    @Override
+    public void incrementBrightness(int amount) {
+        LifxBulb bulb = this;
+        bulb.setBrightness(bulb.getBrightness() + amount);
+        bulb.changeState();
+    }
 }

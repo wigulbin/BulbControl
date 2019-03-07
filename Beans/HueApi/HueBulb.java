@@ -131,4 +131,33 @@ public class HueBulb extends SmartBulb implements Changeable {
         HueBulb bulb = this;
         new Thread(() -> new HueWrapper(bulb).changeState(bulb.isOn(), bulb.getBrightness(), bulb.getHue(), bulb.getSaturation())).start();
     }
+
+    @Override
+    public void incrementHue(int amount) {
+        HueBulb bulb = this;
+        bulb.setHue(amount + bulb.getHue());
+        new Thread(() -> new HueWrapper(bulb).incrementHue(amount).send()).start();
+    }
+
+    @Override
+    public void incrementSaturation(int amount) {
+        HueBulb bulb = this;
+        bulb.setSaturation(amount + bulb.getSaturation());
+        new Thread(() -> new HueWrapper(bulb).incrementSaturation(amount).send()).start();
+    }
+
+    @Override
+    public void incrementKelvin(int amount) {
+        HueBulb bulb = this;
+        bulb.setKelvin(amount + bulb.getKelvin());
+        new Thread(() -> new HueWrapper(bulb).incrementKelvin(amount).send()).start();
+
+    }
+
+    @Override
+    public void incrementBrightness(int amount) {
+        HueBulb bulb = this;
+        bulb.setBrightness(bulb.getBrightness() + amount);
+        new Thread(() -> new HueWrapper(bulb).incrementBrightness(amount).send()).start();
+    }
 }
