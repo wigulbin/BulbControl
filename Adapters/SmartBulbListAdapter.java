@@ -16,7 +16,10 @@ import android.widget.TextView;
 import com.augment.golden.bulbcontrol.Activities.BulbActivity;
 import com.augment.golden.bulbcontrol.Beans.LifxApi.LifxBulb;
 import com.augment.golden.bulbcontrol.Beans.SmartBulb;
+import com.augment.golden.bulbcontrol.BulbAnimations;
+import com.augment.golden.bulbcontrol.Changeable;
 import com.augment.golden.bulbcontrol.OnChangeListeners.BulbActionListeners;
+import com.augment.golden.bulbcontrol.OnChangeListeners.ChangeableActionListeners;
 import com.augment.golden.bulbcontrol.R;
 
 import java.util.List;
@@ -44,6 +47,7 @@ public class SmartBulbListAdapter extends RecyclerView.Adapter<SmartBulbListAdap
         mBulbs = bulbs;
         this.context = context;
         m_bulbMap = new ConcurrentHashMap<>();
+        bulbs.forEach(bulb -> m_bulbMap.put(bulb.getId(), bulb));
     }
 
     @Override
@@ -59,7 +63,9 @@ public class SmartBulbListAdapter extends RecyclerView.Adapter<SmartBulbListAdap
     public void onBindViewHolder(BulbViewHolder holder, final int position){
         holder.mTextView.setText(mBulbs.get(position).getLabel());
 
-        holder.mImageView.setOnClickListener(new BulbActionListeners(mBulbs.get(position)).getBulbImageListener());
+        Changeable changeable = (Changeable) mBulbs.get(position);
+        holder.mImageView.setOnClickListener(new ChangeableActionListeners(changeable).getBulbImageListener());
+        BulbAnimations.bulbPowerAnimation(holder.mImageView, changeable);
 
         holder.itemView.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -101,9 +107,11 @@ public class SmartBulbListAdapter extends RecyclerView.Adapter<SmartBulbListAdap
     }
 
     public void add(SmartBulb bulb){
-        mBulbs.add(bulb);
+        if(!m_bulbMap.containsKey(bulb.getId())){
+            mBulbs.add(bulb);
+            this.notifyDataSetChanged();
+        }
         m_bulbMap.put(bulb.getId(), bulb);
-        this.notifyDataSetChanged();
     }
     public void addAll(List<SmartBulb> bulbs){
         bulbs.forEach(this::add);

@@ -2,6 +2,7 @@ package com.augment.golden.bulbcontrol.Activities;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -32,6 +33,7 @@ import com.augment.golden.bulbcontrol.Beans.TaskInfo;
 import com.augment.golden.bulbcontrol.BulbGroup;
 import com.augment.golden.bulbcontrol.CustomScrollingLayoutCallback;
 import com.augment.golden.bulbcontrol.R;
+import com.augment.golden.bulbcontrol.Services.UpdateBulbsService;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -94,6 +96,22 @@ public class MainActivity extends WearableActivity {
         if(!SmartBulb.singleView)
             mRecyclerView.setAdapter(new BulbGroupListAdapter(groups, this));
 
+        new FindBulbs().execute(new TaskInfo(mActivity, mAdapter, mGroupAdapter));
+
+        setClickListeners();
+
+        if(search){
+            HueBridge.findBridges(this);
+            search = false;
+        }
+
+        WearableDrawerView drawerView = findViewById(R.id.draw_view);
+
+        setRefreshBulbListener();
+        setAmbientEnabled();
+    }
+    private void setClickListeners(){
+
         LinearLayout groupLayout = findViewById(R.id.group_linear);
         groupLayout.setOnClickListener(v -> {
             TextView text = (TextView) findViewById(R.id.group_linear_text);
@@ -104,21 +122,12 @@ public class MainActivity extends WearableActivity {
         });
 
         ImageView connectBridge = findViewById(R.id.connect_bridge);
-        if(search){
-            HueBridge.findBridges(this);
-            search = false;
-        }
         connectBridge.setOnClickListener((v) -> {
             List<HueBridge> bridges = HueBridge.retrieveBridges(getApplicationContext());
             mBridgesLeft = new AtomicInteger(bridges.size());
             for (HueBridge bridge : bridges)
                 new HueApiTask().execute(bridge.getInternalIpAddress() + "/api", "POST", bridge.getId());
         });
-
-        WearableDrawerView drawerView = findViewById(R.id.draw_view);
-
-        setRefreshBulbListener();
-        setAmbientEnabled();
     }
 
     private void toggleGroupText(){
@@ -210,7 +219,7 @@ public class MainActivity extends WearableActivity {
             ProgressBar spinner = mActivity.get().findViewById(R.id.progressBar);
             if(spinner != null)
                 spinner.setVisibility(View.GONE);
-            mAdapter.removeAll(bulbs);
+//            mAdapter.removeAll(bulbs);
             mAdapter.addAll(bulbs);
         }
     }

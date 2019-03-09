@@ -1,5 +1,7 @@
 package com.augment.golden.bulbcontrol;
 
+import org.json.JSONObject;
+
 public class Common {
 
     public static String byteToHex(byte num) {
@@ -26,5 +28,14 @@ public class Common {
             newArr[j++] = arr[i];
 
         return newArr;
+    }
+
+    public static boolean isValidJsonObject(String json){
+        try{
+            JSONObject object = new JSONObject(json);
+        }catch (Exception e){
+            return false;
+        }
+        return true;
     }
 }

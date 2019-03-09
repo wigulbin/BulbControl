@@ -8,9 +8,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 
-import com.augment.golden.bulbcontrol.Beans.HueApi.HueBulbGroup;
 import com.augment.golden.bulbcontrol.Beans.LifxApi.LifxBulb;
-import com.augment.golden.bulbcontrol.Beans.SmartBulb;
 import com.augment.golden.bulbcontrol.BulbAnimations;
 import com.augment.golden.bulbcontrol.Changeable;
 import com.augment.golden.bulbcontrol.KelvinTable;
@@ -20,7 +18,6 @@ import com.larswerkman.holocolorpicker.SaturationBar;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
 
 public class ChangeableActionListeners {
     Changeable changeable;
@@ -108,6 +105,7 @@ public class ChangeableActionListeners {
                     prevProg.set(newProg);
                     int brightness;
 
+                    String brightHex;
                     if(changeable instanceof LifxBulb)
                         brightness = progress;
                     else
@@ -125,7 +123,8 @@ public class ChangeableActionListeners {
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 int progressChangedValue = seekBar.getProgress();
-                image.setColorFilter(Color.parseColor(changeBrightness((int)((progressChangedValue/65535f) * 15))));
+                image.setColorFilter(Color.parseColor(changeBrightness((int) (progressChangedValue/65535f * 15))));
+//                BulbAnimations.toggleBulbBrightAnimation(image, changeable);
             }
         };
     }
@@ -172,16 +171,8 @@ public class ChangeableActionListeners {
         return new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                boolean on;
-                if(changeable instanceof SmartBulb){
-                    SmartBulb lifxBulb = (SmartBulb) changeable;
-                    on = !lifxBulb.isOn();
-                    BulbAnimations.bulbPowerAnimation((ImageView) v, lifxBulb);
-                }else{
-                    HueBulbGroup group = (HueBulbGroup) changeable;
-                    on = !group.isOn();
-                }
-                changeable.setOn(on);
+                changeable.setOn(!changeable.isOn());
+                BulbAnimations.bulbPowerAnimation((ImageView) v, changeable);
                 changeable.changePower();
             }
         };

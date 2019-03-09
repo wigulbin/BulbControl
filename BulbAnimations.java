@@ -11,28 +11,27 @@ import com.augment.golden.bulbcontrol.Beans.SmartBulb;
 public class BulbAnimations {
 
 
-    public static void bulbPowerAnimation(ImageView imageView, SmartBulb lifxBulb){
+    public static void bulbPowerAnimation(ImageView imageView, Changeable changeable){
+        String hex = changeBrightness(changeable.getBrightness()/changeable.retrieveBrightMax() * 15);
+        boolean on = changeable.isOn();
 
-        String hex = "01";
-        if(lifxBulb.isOn()) hex = changeBrightness((int)((lifxBulb.getBrightness()/65535f) * 15));
-        else hex = "#222222";
+        if(!on) hex = "#222222";
         int colorFrom = Color.parseColor(hex);
 
         int colorTo = 0;
-        if(lifxBulb.isOn())
+        if(!on)
             colorTo = Color.parseColor("#222222");
         else
-            colorTo = Color.parseColor(changeBrightness((int)((lifxBulb.getBrightness()/65535f) * 15)));
+            colorTo = Color.parseColor(hex);
 
         ValueAnimator colorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), colorFrom, colorTo);
         colorAnimation.setDuration(500); // milliseconds
-        colorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animator) {
-                imageView.setColorFilter((int) animator.getAnimatedValue());
-            }
-        });
+        colorAnimation.addUpdateListener(animator -> imageView.setColorFilter((int) animator.getAnimatedValue()));
         colorAnimation.start();
+    }
+
+    public static void toggleBulbBrightAnimation(ImageView image, Changeable changeable){
+        image.setColorFilter(Color.parseColor(changeBrightness(changeable.getBrightness()/changeable.retrieveBrightMax() * 15)));
     }
 
     public static String changeBrightness(int num){

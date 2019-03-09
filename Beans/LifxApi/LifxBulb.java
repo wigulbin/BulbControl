@@ -36,6 +36,8 @@ public class LifxBulb extends SmartBulb implements Changeable {
         super(mac, label);
     }
 
+    private final static int brightMax = 65535;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -237,5 +239,10 @@ public class LifxBulb extends SmartBulb implements Changeable {
         LifxBulb bulb = this;
         bulb.setBrightness(bulb.getBrightness() + amount);
         bulb.changeState();
+    }
+
+    @Override
+    public int retrieveBrightMax() {
+        return brightMax;
     }
 }

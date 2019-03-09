@@ -6,9 +6,11 @@ import android.preference.PreferenceManager;
 
 import com.augment.golden.bulbcontrol.Beans.LifxApi.LifxBulb;
 import com.augment.golden.bulbcontrol.BulbGroup;
+import com.augment.golden.bulbcontrol.Common;
 import com.google.gson.Gson;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -134,7 +136,11 @@ public class HueBridge {
         List<HueBulbGroup> groups = new ArrayList<>();
         RequestManager manager = new RequestManager(this.getInternalIpAddress() + "/api/" + this.getUsername() + "/groups", "GET");
         try{
-            JSONObject response = new JSONObject(manager.sendData());
+            String data = manager.sendData();
+            if(!Common.isValidJsonObject(data))
+                data += "}";
+
+            JSONObject response = new JSONObject(data);
             int i = 1;
             while(response.has(i + "")){
                 HueBulbGroup group = parseGroupJSON(response.getJSONObject(i + ""), i, this.getId());
@@ -152,23 +158,34 @@ public class HueBridge {
     public List<HueBulb> findBulbs(Context context){
         List<HueBulb> bulbs = new ArrayList<>();
         RequestManager manager = new RequestManager(this.getInternalIpAddress() + "/api/" + this.getUsername() + "/lights", "GET");
+        String data = "";
         try{
-            JSONObject response = new JSONObject(manager.sendData());
-            int i = 1;
-            while(response.has(i + "")){
-                HueBulb bulb = parseBulbJSON(response.getJSONObject(i + ""), i, this.getId());
-                if(bulb != null) {
-                    bulbs.add(bulb);
-                    bulb.save(context);
-                }
-                i++;
-            }
+            data += manager.sendData();
+            if(!Common.isValidJsonObject(data))
+                data += "}";
+
+            JSONObject response = new JSONObject(data);
+            bulbs.addAll(addBulbsFromJson(response, context));
         }catch (Exception e){
             e.printStackTrace();
         }
 
         return bulbs;
     }
+    private List<HueBulb> addBulbsFromJson(JSONObject response, Context context) throws JSONException {
+        List<HueBulb> bulbs = new ArrayList<>();
+        int i = 1;
+        while(response.has(i + "")){
+            HueBulb bulb = parseBulbJSON(response.getJSONObject(i + ""), i, this.getId());
+            if(bulb != null) {
+                bulbs.add(bulb);
+                bulb.save(context);
+            }
+            i++;
+        }
+        return bulbs;
+    }
+
 
     private static HueBulbGroup parseGroupJSON(JSONObject json, int id, String bridgeId){
         HueBulbGroup group = null;

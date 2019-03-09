@@ -172,7 +172,7 @@ public class BulbActionListeners {
                 if(bulb instanceof LifxBulb){
                     LifxBulb lifxBulb = (LifxBulb) bulb;
                     ImageView imageView = (ImageView) v;
-                    BulbAnimations.bulbPowerAnimation(imageView, lifxBulb);
+//                    BulbAnimations.bulbPowerAnimation(imageView, lifxBulb);
                     lifxBulb.setOn(!lifxBulb.isOn());
                     lifxBulb.changePower();
                 }

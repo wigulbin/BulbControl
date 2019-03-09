@@ -25,4 +25,9 @@ public interface Changeable {
     public void incrementSaturation(int amount);
     public void incrementKelvin(int amount);
     public void incrementBrightness(int amount);
+
+
+    public boolean isOn();
+    public int getBrightness();
+    public int retrieveBrightMax();
 }

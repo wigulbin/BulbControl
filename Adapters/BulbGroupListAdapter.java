@@ -15,9 +15,9 @@ import android.widget.TextView;
 
 import com.augment.golden.bulbcontrol.Activities.BulbActivity;
 import com.augment.golden.bulbcontrol.Beans.SmartBulb;
+import com.augment.golden.bulbcontrol.BulbAnimations;
 import com.augment.golden.bulbcontrol.BulbGroup;
 import com.augment.golden.bulbcontrol.Changeable;
-import com.augment.golden.bulbcontrol.OnChangeListeners.BulbGroupActionListeners;
 import com.augment.golden.bulbcontrol.OnChangeListeners.ChangeableActionListeners;
 import com.augment.golden.bulbcontrol.R;
 
@@ -47,6 +47,7 @@ public class BulbGroupListAdapter extends RecyclerView.Adapter<BulbGroupListAdap
         mBulbGroups = groups;
         this.context = context;
         groupMap = new ConcurrentHashMap<>();
+        groups.forEach(group -> groupMap.put(group.getId(), group));
     }
 
     @Override
@@ -64,6 +65,7 @@ public class BulbGroupListAdapter extends RecyclerView.Adapter<BulbGroupListAdap
 
         Changeable changeable = (Changeable) mBulbGroups.get(position);
         holder.mImageView.setOnClickListener(new ChangeableActionListeners(changeable).getBulbImageListener());
+        BulbAnimations.bulbPowerAnimation(holder.mImageView, changeable);
 
         holder.itemView.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -99,8 +101,11 @@ public class BulbGroupListAdapter extends RecyclerView.Adapter<BulbGroupListAdap
     }
 
     public void add(BulbGroup group){
-        mBulbGroups.add(group);
-        this.notifyDataSetChanged();
+        if(!groupMap.containsKey(group.getId())){
+            mBulbGroups.add(group);
+            this.notifyDataSetChanged();
+        }
+        groupMap.put(group.getId(), group);
     }
     public void addAll(List<BulbGroup> groups){
         groups.forEach(this::add);

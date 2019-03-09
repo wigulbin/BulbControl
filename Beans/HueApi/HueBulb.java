@@ -36,6 +36,7 @@ public class HueBulb extends SmartBulb implements Changeable {
         super (id, name);
         this.bridgeId = bridgeId;
     }
+    private final static int brightMax = 254;
 
     public void save(Context context){
         HueBulb bulb = this;
@@ -159,5 +160,10 @@ public class HueBulb extends SmartBulb implements Changeable {
         HueBulb bulb = this;
         bulb.setBrightness(bulb.getBrightness() + amount);
         new Thread(() -> new HueWrapper(bulb).incrementBrightness(amount).send()).start();
+    }
+
+    @Override
+    public int retrieveBrightMax() {
+        return brightMax;
     }
 }
