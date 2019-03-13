@@ -1,5 +1,9 @@
 package com.augment.golden.bulbcontrol;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
+
 import org.json.JSONObject;
 
 public class Common {
@@ -37,5 +41,12 @@ public class Common {
             return false;
         }
         return true;
+    }
+
+    public static void clearAll(Context context){
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.clear();
+        editor.apply();
     }
 }

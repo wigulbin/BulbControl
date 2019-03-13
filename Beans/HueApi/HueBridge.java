@@ -79,7 +79,8 @@ public class HueBridge {
             for (String id : ids)
             {
                 HueBridge bridge = retrieveBridge(id, context);
-                bridges.add(bridge);
+                if(bridge != null)
+                    bridges.add(bridge);
             }
         }
         bridges.forEach(bridge -> bridgeMap.put(bridge.getId(), bridge));
@@ -89,7 +90,10 @@ public class HueBridge {
     public static HueBridge retrieveBridge(String id, Context context){
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         Gson json = new Gson();
-        return json.fromJson(sharedPreferences.getString(id, ""), HueBridge.class);
+        String jsonString = sharedPreferences.getString(id, "");
+        if(jsonString.length() > 0)
+            return json.fromJson(jsonString, HueBridge.class);
+        return null;
     }
 
     public static List<HueBulb> findAllBulbs(Context context){
@@ -106,7 +110,9 @@ public class HueBridge {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         Set<String> bridgeIds = sharedPreferences.getStringSet("groupIds", new HashSet<>());
         for (String groupId : bridgeIds) {
-            groups.add(retrieveGroup(groupId, context));
+            HueBulbGroup group = retrieveGroup(groupId, context);
+            groups.add(group);
+            HueBulbGroup.addGroup(group);
         }
         return groups;
     }
@@ -126,6 +132,7 @@ public class HueBridge {
             Gson gson = new Gson();
             editor.putString(group.getName(), gson.toJson(group));
             groupIds.add(group.getName());
+            HueBulbGroup.addGroup(group);
         }
 
         editor.putStringSet("groupIds", groupIds);
@@ -192,6 +199,13 @@ public class HueBridge {
         try{
             group = new HueBulbGroup(json.getString("name"));
             group.setType(json.getString("type"));
+
+            JSONArray lightsArray = json.getJSONArray("lights");
+            List<String> lights = new ArrayList<>();
+            for(int i = 0; i < lightsArray.length(); i++)
+                lights.add(lightsArray.getString(i));
+
+            group.setLights(lights);
             JSONObject state = json.getJSONObject("action");
             group.setOn(state.getBoolean("on"));
             group.setBrightness(state.getInt("bri"));

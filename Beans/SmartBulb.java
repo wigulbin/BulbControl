@@ -1,5 +1,12 @@
 package com.augment.golden.bulbcontrol.Beans;
 
+import com.augment.golden.bulbcontrol.Beans.LifxApi.LifxBulb;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 public class SmartBulb {
     private String id = "";
     private String label = "";
@@ -13,6 +20,17 @@ public class SmartBulb {
     private boolean on;
 
     public static boolean singleView;
+    private static Map<String, SmartBulb> bulbMap = new ConcurrentHashMap<>();
+
+    public static void addBulb(SmartBulb bulb){
+        bulbMap.put(bulb.getId(), bulb);
+    }
+    public static SmartBulb retrieveBulb(String id){
+        return bulbMap.get(id);
+    }
+    public static List<SmartBulb> retrieveBulbs(){
+        return new ArrayList<>(bulbMap.values());
+    }
 
     public SmartBulb(){}
     public SmartBulb(String id){

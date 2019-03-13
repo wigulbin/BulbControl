@@ -61,9 +61,10 @@ public class BulbGroupListAdapter extends RecyclerView.Adapter<BulbGroupListAdap
 
     @Override
     public void onBindViewHolder(GroupViewHolder holder, final int position){
-        holder.mTextView.setText(mBulbGroups.get(position).getName());
+        BulbGroup group = mBulbGroups.get(position);
 
-        Changeable changeable = (Changeable) mBulbGroups.get(position);
+        holder.mTextView.setText(group.getName());
+        Changeable changeable = (Changeable) group;
         holder.mImageView.setOnClickListener(new ChangeableActionListeners(changeable).getBulbImageListener());
         BulbAnimations.bulbPowerAnimation(holder.mImageView, changeable);
 

@@ -31,6 +31,7 @@ import com.augment.golden.bulbcontrol.Beans.LifxApi.LifxBulb;
 import com.augment.golden.bulbcontrol.Beans.SmartBulb;
 import com.augment.golden.bulbcontrol.Beans.TaskInfo;
 import com.augment.golden.bulbcontrol.BulbGroup;
+import com.augment.golden.bulbcontrol.Common;
 import com.augment.golden.bulbcontrol.CustomScrollingLayoutCallback;
 import com.augment.golden.bulbcontrol.R;
 import com.augment.golden.bulbcontrol.Services.UpdateBulbsService;
@@ -58,6 +59,7 @@ public class MainActivity extends WearableActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         LifxBulb.clearBulbs(this);
+        Common.clearAll(this);
 
         mActivity = this;
         setContentView(R.layout.activity_main);
@@ -70,19 +72,19 @@ public class MainActivity extends WearableActivity {
         spinner.setVisibility(View.GONE);
         mBridgesLeft = new AtomicInteger(0);
         HueBridge.retrieveBridges(getApplicationContext());
-        mRecyclerView.setLayoutManager(new WearableLinearLayoutManager(this));
+        mRecyclerView.setLayoutManager(new WearableLinearLayoutManager(getApplicationContext()));
         CustomScrollingLayoutCallback customScrollingLayoutCallback = new CustomScrollingLayoutCallback();
-        mRecyclerView.setLayoutManager(new WearableLinearLayoutManager(this, customScrollingLayoutCallback));
+        mRecyclerView.setLayoutManager(new WearableLinearLayoutManager(getApplicationContext(), customScrollingLayoutCallback));
 
         mMainRefresh = findViewById(R.id.main_refresh);
-        List<LifxBulb> lifxBulbs = LifxBulb.getLifxBulbs(this);
-        List<HueBulb> hueBulbs = HueBulb.getHueBulbs(this);
+        List<LifxBulb> lifxBulbs = LifxBulb.getLifxBulbs(getApplicationContext());
+        List<HueBulb> hueBulbs = HueBulb.getHueBulbs(getApplicationContext());
 
         List<SmartBulb> bulbs = new ArrayList<>();
         bulbs.addAll(lifxBulbs);
         bulbs.addAll(hueBulbs);
 
-        List<BulbGroup> groups = HueBridge.retrieveGroups(this);
+        List<BulbGroup> groups = HueBridge.retrieveGroups(getApplicationContext());
         if(bulbs.size() == 0 && SmartBulb.singleView){
             ImageView mainRefresh = findViewById(R.id.main_refresh_button);
             int color = Color.parseColor("#FFFFFF"); //The color you want
@@ -96,7 +98,7 @@ public class MainActivity extends WearableActivity {
         if(!SmartBulb.singleView)
             mRecyclerView.setAdapter(new BulbGroupListAdapter(groups, this));
 
-        new FindBulbs().execute(new TaskInfo(mActivity, mAdapter, mGroupAdapter));
+        new FindBulbs().execute(new TaskInfo(getApplicationContext(), this, mAdapter, mGroupAdapter));
 
         setClickListeners();
 
@@ -175,7 +177,7 @@ public class MainActivity extends WearableActivity {
     private void setRefreshBulbListener(){
         ImageView.OnClickListener listener = (test) -> {
             spinner.setVisibility(View.VISIBLE);
-            new FindBulbs().execute(new TaskInfo(mActivity, mAdapter, mGroupAdapter));
+            new FindBulbs().execute(new TaskInfo(getApplicationContext(), this, mAdapter, mGroupAdapter));
             mMainRefresh.setVisibility(View.INVISIBLE);
         };
 
@@ -189,6 +191,7 @@ public class MainActivity extends WearableActivity {
 
 
     private static class FindBulbs extends AsyncTask<TaskInfo, Void, List<SmartBulb>> {
+        private WeakReference<Context> mContext;
         private WeakReference<Activity> mActivity;
         private SmartBulbListAdapter mAdapter;
         private BulbGroupListAdapter mGroupAdapter;
@@ -196,15 +199,16 @@ public class MainActivity extends WearableActivity {
 
         @Override
         protected List<SmartBulb> doInBackground(TaskInfo... params) {
+            mContext = new WeakReference<>(params[0].getContext());
             mActivity = new WeakReference<>(params[0].getActivity());
             mAdapter = params[0].getAdapter();
             mGroupAdapter = params[0].getGroupAdapter();
             List<SmartBulb> bulbs = new ArrayList<>();
-            bulbs.addAll(LifxBulb.findAllBulbs(mAdapter, mActivity.get()));
-            bulbs.addAll(HueBridge.findAllBulbs(mActivity.get()));
-            List<HueBridge> bridges = HueBridge.retrieveBridges(mActivity.get());
-            bridges.forEach(bridge ->  bridge.findAndSaveGroups(mActivity.get()));
-            mGroupAdapter.addAll(HueBridge.retrieveGroups(mActivity.get()));
+            bulbs.addAll(LifxBulb.findAllBulbs(mAdapter, mContext.get()));
+            bulbs.addAll(HueBridge.findAllBulbs(mContext.get()));
+            List<HueBridge> bridges = HueBridge.retrieveBridges(mContext.get());
+            bridges.forEach(bridge ->  bridge.findAndSaveGroups(mContext.get()));
+            mGroupAdapter.addAll(HueBridge.retrieveGroups(mContext.get()));
 
             return bulbs;
         }
@@ -249,9 +253,12 @@ public class MainActivity extends WearableActivity {
                         }
                         if(json.has("success")){
                             String username = json.getJSONObject("success").getString("username");
-                            HueBridge brige = HueBridge.retrieveBridge(params[2], getApplicationContext());
-                            brige.setUsername(username);
-                            brige.save(getApplicationContext());
+                            HueBridge bridge = HueBridge.retrieveBridge(params[2], getApplicationContext());
+                            if(bridge != null)
+                            {
+                                bridge.setUsername(username);
+                                bridge.save(getApplicationContext());
+                            }
                             return "Bridge Linked";
                         }
                     }

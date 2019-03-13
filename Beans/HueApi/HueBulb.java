@@ -21,8 +21,6 @@ public class HueBulb extends SmartBulb implements Changeable {
     private double xy;
     private String bridgeId = "";
 
-    private static Map<String, HueBulb> bulbMap = new ConcurrentHashMap<>();
-
     public HueBulb(){
         super();
     }
@@ -40,7 +38,7 @@ public class HueBulb extends SmartBulb implements Changeable {
 
     public void save(Context context){
         HueBulb bulb = this;
-        bulbMap.put(bulb.getId(), bulb);
+        SmartBulb.addBulb(bulb);
 
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -76,7 +74,7 @@ public class HueBulb extends SmartBulb implements Changeable {
             {
                 HueBulb bulb = getBulb(mac, context);
                 bulbs.add(bulb);
-                bulbMap.put(bulb.getId(), bulb);
+                SmartBulb.addBulb(bulb);
             }
         }
 
@@ -100,11 +98,11 @@ public class HueBulb extends SmartBulb implements Changeable {
     }
 
     public static void addBulb(HueBulb bulb){
-        bulbMap.put(bulb.getId(), bulb);
+        SmartBulb.addBulb(bulb);
     }
 
     public static HueBulb findBulb(String id){
-        return bulbMap.get(id);
+        return (HueBulb) SmartBulb.retrieveBulb(id);
     }
 
 

@@ -32,7 +32,7 @@ public class BulbActivity extends WearableActivity {
             String type = extras.getString("type");
             if(type.equals("lifx")) changeable = LifxBulb.findBulb(id);
             if(type.equals("hue")) changeable = HueBulb.findBulb(id);
-            if(type.equals("hueGroup")) changeable = HueBridge.retrieveGroup(id, this);
+            if(type.equals("hueGroup")) changeable = HueBulbGroup.retrieveGroup(id);
         }
 
         RecyclerView recyclerView = findViewById(R.id.horizonal_view);

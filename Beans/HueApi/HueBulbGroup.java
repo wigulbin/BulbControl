@@ -1,9 +1,13 @@
 package com.augment.golden.bulbcontrol.Beans.HueApi;
 
+import com.augment.golden.bulbcontrol.Beans.SmartBulb;
 import com.augment.golden.bulbcontrol.BulbGroup;
 import com.augment.golden.bulbcontrol.Changeable;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class HueBulbGroup extends BulbGroup implements Changeable {
     private List<String> lights;
@@ -18,6 +22,15 @@ public class HueBulbGroup extends BulbGroup implements Changeable {
     private String effect;
 
     private final static int brightMax = 254;
+
+    private static Map<String, HueBulbGroup> bulbGroupMap = new ConcurrentHashMap<>();
+
+    public static HueBulbGroup retrieveGroup(String id){
+        return bulbGroupMap.get(id);
+    }
+    public static void addGroup(HueBulbGroup group){
+        bulbGroupMap.put(group.getId(), group);
+    }
 
     public HueBulbGroup(String name) {
         super(name);
@@ -152,9 +165,16 @@ public class HueBulbGroup extends BulbGroup implements Changeable {
         new Thread(() -> new HueWrapper(bulb).incrementBrightness(amount).send()).start();
     }
 
-
     @Override
     public int retrieveBrightMax() {
         return brightMax;
     }
+
+    @Override
+    public List<SmartBulb> getBulbs(){
+        List<SmartBulb> bulbs = new ArrayList<>(lights.size());
+        lights.forEach(id -> bulbs.add(HueBulb.findBulb(id)));
+        return bulbs;
+    }
+
 }

@@ -26,8 +26,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public class LifxBulb extends SmartBulb implements Changeable {
     private String location = "";
 
-    private static Map<String, LifxBulb> bulbMap = new ConcurrentHashMap<>();
-
     public LifxBulb(){super();};
     public LifxBulb(String mac){
         super(mac);
@@ -59,7 +57,7 @@ public class LifxBulb extends SmartBulb implements Changeable {
     }
 
     public static void saveBulb(LifxBulb bulb, Context context){
-        bulbMap.put(bulb.getId(), bulb);
+        SmartBulb.addBulb(bulb);
 
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -94,7 +92,7 @@ public class LifxBulb extends SmartBulb implements Changeable {
             {
                 LifxBulb bulb = getBulb(mac, context);
                 bulbs.add(bulb);
-                bulbMap.put(bulb.getId(), bulb);
+                SmartBulb.addBulb(bulb);
             }
         }
 
@@ -112,7 +110,7 @@ public class LifxBulb extends SmartBulb implements Changeable {
             {
                 LifxBulb bulb = getBulb(mac, context);
                 bulbs.add(bulb);
-                bulbMap.put(bulb.getId(), bulb);
+                SmartBulb.addBulb(bulb);
             }
         }
 
@@ -120,7 +118,7 @@ public class LifxBulb extends SmartBulb implements Changeable {
     }
 
     public static LifxBulb findBulb(String macAddress){
-        return bulbMap.get(macAddress);
+        return (LifxBulb) SmartBulb.retrieveBulb(macAddress);
     }
 
     public static LifxBulb getBulb(String macAddress, Context context){
@@ -143,7 +141,7 @@ public class LifxBulb extends SmartBulb implements Changeable {
 
 
     //Bulb network methods
-    public static List<LifxBulb> findAllBulbs(final SmartBulbListAdapter adapter, final Activity activity){
+    public static List<LifxBulb> findAllBulbs(final SmartBulbListAdapter adapter, final Context context){
         Set<String> macSet = new HashSet<>();
         List<LifxBulb> bulbs = new ArrayList<>();
         List<String> macAddresses = LifxWrapper.getAllMacAddresses();
@@ -160,14 +158,14 @@ public class LifxBulb extends SmartBulb implements Changeable {
                 bulb.setKelvin(hsbk.getKelvin());
 
                 bulbs.add(bulb);
-                LifxBulb.saveBulb(bulb, activity);
+                LifxBulb.saveBulb(bulb, context);
             }
         }
 
         if(bulbs.size() == 0)
         {
             LifxBulb bulb = new LifxBulb("d073d53c6259", "Test");
-            LifxBulb.saveBulb(bulb, activity);
+            LifxBulb.saveBulb(bulb, context);
             bulbs.add(bulb);
         }
 
