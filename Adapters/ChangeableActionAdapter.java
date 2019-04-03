@@ -99,17 +99,17 @@ public class ChangeableActionAdapter extends RecyclerView.Adapter {
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(final ViewGroup parent, final int viewType) {
         System.out.println("View Type " + viewType);
-        if(viewType == 1) {
+        if(viewType == 2) {
             RecyclerView.ViewHolder holder = new ChangeableActionAdapter.BulbColorActionViewHolder((ConstraintLayout) LayoutInflater.from(parent.getContext()).inflate(R.layout.bulb_color, parent, false));
             holderMap.put(viewType, holder);
             return holder;
         }
-        if(viewType == 2) {
+        if(viewType == 1) {
             RecyclerView.ViewHolder holder = new ChangeableActionAdapter.BulbSaturationActionViewHolder((ConstraintLayout) LayoutInflater.from(parent.getContext()).inflate(R.layout.bulb_saturation, parent, false));
             holderMap.put(viewType, holder);
             return holder;
         }
-        if(viewType == 3) {
+        if(viewType == 0) {
             RecyclerView.ViewHolder holder = new ChangeableActionAdapter.BulbWarmthActionViewHolder((ConstraintLayout) LayoutInflater.from(parent.getContext()).inflate(R.layout.bulb_warmth, parent, false));
             holderMap.put(viewType, holder);
             return holder;
@@ -127,10 +127,10 @@ public class ChangeableActionAdapter extends RecyclerView.Adapter {
     @Override public void onBindViewHolder(final RecyclerView.ViewHolder holder, final int position) {
 
         if(holder.getItemViewType() == 4) handleBulbListItem(holder);
-        if(holder.getItemViewType() == 3) handleWarmthItem(holder);
-        if(holder.getItemViewType() == 2) handleSaturationItem(holder);
-        if(holder.getItemViewType() == 1) handleColorItem(holder);
-        if(holder.getItemViewType() == 0) handleBrightnessItem(holder);
+        if(holder.getItemViewType() == 0) handleWarmthItem(holder);
+        if(holder.getItemViewType() == 1) handleSaturationItem(holder);
+        if(holder.getItemViewType() == 2) handleColorItem(holder);
+        if(holder.getItemViewType() == 3) handleBrightnessItem(holder);
     }
 
     @Override
@@ -156,7 +156,7 @@ public class ChangeableActionAdapter extends RecyclerView.Adapter {
     }
     private void handleSaturationItem(RecyclerView.ViewHolder holder){
         ChangeableActionAdapter.BulbSaturationActionViewHolder satViewHolder = (ChangeableActionAdapter.BulbSaturationActionViewHolder) holder;
-        ChangeableActionAdapter.BulbColorActionViewHolder colorViewHolder = (ChangeableActionAdapter.BulbColorActionViewHolder) holderMap.get(1);
+        ChangeableActionAdapter.BulbColorActionViewHolder colorViewHolder = (ChangeableActionAdapter.BulbColorActionViewHolder) holderMap.get(2);
         satViewHolder.m_saturationBar.setOnSaturationChangedListener(listeners.createSaturationChangeListener());
 
         if(colorViewHolder != null && colorViewHolder.m_colorPicker != null && satViewHolder.m_saturationBar != null)
@@ -166,7 +166,7 @@ public class ChangeableActionAdapter extends RecyclerView.Adapter {
         ChangeableActionAdapter.BulbColorActionViewHolder colorViewHolder = (ChangeableActionAdapter.BulbColorActionViewHolder) holder;
         colorViewHolder.m_colorPicker.setShowOldCenterColor(false);
         colorViewHolder.m_colorPicker.setOnColorChangedListener(listeners.createColorChangeListener());
-        ChangeableActionAdapter.BulbSaturationActionViewHolder satViewHolder = (ChangeableActionAdapter.BulbSaturationActionViewHolder) holderMap.get(2);
+        ChangeableActionAdapter.BulbSaturationActionViewHolder satViewHolder = (ChangeableActionAdapter.BulbSaturationActionViewHolder) holderMap.get(1);
         if(satViewHolder != null && satViewHolder.m_saturationBar != null &&  colorViewHolder.m_colorPicker != null)
             colorViewHolder.m_colorPicker.addSaturationBar(satViewHolder.m_saturationBar);
     }
