@@ -26,6 +26,7 @@ import com.augment.golden.bulbcontrol.Beans.HueApi.HueBridge;
 import com.augment.golden.bulbcontrol.Beans.HueApi.HueBulb;
 import com.augment.golden.bulbcontrol.Beans.HueApi.HueBulbGroup;
 import com.augment.golden.bulbcontrol.Beans.HueApi.RequestManager;
+import com.augment.golden.bulbcontrol.Beans.LifxApi.LifxBulbGroup;
 import com.augment.golden.bulbcontrol.Beans.LightInfo;
 import com.augment.golden.bulbcontrol.Beans.LifxApi.LifxBulb;
 import com.augment.golden.bulbcontrol.Beans.SmartBulb;
@@ -58,8 +59,8 @@ public class MainActivity extends WearableActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        LifxBulb.clearBulbs(this);
-        Common.clearAll(this);
+//        LifxBulb.clearBulbs(this);
+//        Common.clearAll(this);
 
         mActivity = this;
         setContentView(R.layout.activity_main);
@@ -72,9 +73,11 @@ public class MainActivity extends WearableActivity {
         spinner.setVisibility(View.GONE);
         mBridgesLeft = new AtomicInteger(0);
         HueBridge.retrieveBridges(getApplicationContext());
-        mRecyclerView.setLayoutManager(new WearableLinearLayoutManager(getApplicationContext()));
+//        mRecyclerView.setLayoutManager(new WearableLinearLayoutManager(getApplicationContext()));
         CustomScrollingLayoutCallback customScrollingLayoutCallback = new CustomScrollingLayoutCallback();
-        mRecyclerView.setLayoutManager(new WearableLinearLayoutManager(getApplicationContext(), customScrollingLayoutCallback));
+        WearableLinearLayoutManager manager = new WearableLinearLayoutManager(getApplicationContext(), customScrollingLayoutCallback);
+        mRecyclerView.setLayoutManager(manager);
+
 
         mMainRefresh = findViewById(R.id.main_refresh);
         List<LifxBulb> lifxBulbs = LifxBulb.getLifxBulbs(getApplicationContext());
@@ -84,8 +87,8 @@ public class MainActivity extends WearableActivity {
         bulbs.addAll(lifxBulbs);
         bulbs.addAll(hueBulbs);
 
-        List<BulbGroup> groups = HueBridge.retrieveGroups(getApplicationContext());
-        if(bulbs.size() == 0 && SmartBulb.singleView){
+        List<BulbGroup> groups = BulbGroup.getAllGroups(getApplicationContext());
+        if((bulbs.size() == 0 && SmartBulb.singleView) || (groups.size() == 0 && !SmartBulb.singleView)){
             ImageView mainRefresh = findViewById(R.id.main_refresh_button);
             int color = Color.parseColor("#FFFFFF"); //The color you want
             mainRefresh.setColorFilter(color);
@@ -203,12 +206,13 @@ public class MainActivity extends WearableActivity {
             mActivity = new WeakReference<>(params[0].getActivity());
             mAdapter = params[0].getAdapter();
             mGroupAdapter = params[0].getGroupAdapter();
+            List<LifxBulb> lifxBulbs = LifxBulb.findAllBulbs(mAdapter, mContext.get());
             List<SmartBulb> bulbs = new ArrayList<>();
-            bulbs.addAll(LifxBulb.findAllBulbs(mAdapter, mContext.get()));
+            bulbs.addAll(lifxBulbs);
             bulbs.addAll(HueBridge.findAllBulbs(mContext.get()));
             List<HueBridge> bridges = HueBridge.retrieveBridges(mContext.get());
             bridges.forEach(bridge ->  bridge.findAndSaveGroups(mContext.get()));
-            mGroupAdapter.addAll(HueBridge.retrieveGroups(mContext.get()));
+            LifxBulbGroup.findAndSaveLifxBulbGroups(lifxBulbs, mContext.get());
 
             return bulbs;
         }
@@ -225,6 +229,7 @@ public class MainActivity extends WearableActivity {
                 spinner.setVisibility(View.GONE);
 //            mAdapter.removeAll(bulbs);
             mAdapter.addAll(bulbs);
+            mGroupAdapter.notifyDataSetChanged();
         }
     }
 

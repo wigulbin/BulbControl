@@ -127,6 +127,14 @@ class PacketFactory {
         return factory.getByteArrayFromList();
     }
 
+    static byte[] buildGetGroupMessage(String macAddress){
+        PacketFactory factory = new PacketFactory();
+        factory.setTarget(macAddress);
+        factory.setMessage(51);
+        factory.setLength();
+        return factory.getByteArrayFromList();
+    }
+
     static byte[] buildGetServiceMessage(){
         PacketFactory factory = new PacketFactory();
         factory.setMessage(2);

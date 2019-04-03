@@ -6,12 +6,11 @@ import android.support.v7.widget.PagerSnapHelper;
 import android.support.v7.widget.RecyclerView;
 import android.support.wearable.activity.WearableActivity;
 
-import com.augment.golden.bulbcontrol.Adapters.BulbActionAdapter;
 import com.augment.golden.bulbcontrol.Adapters.ChangeableActionAdapter;
-import com.augment.golden.bulbcontrol.Beans.HueApi.HueBridge;
 import com.augment.golden.bulbcontrol.Beans.HueApi.HueBulb;
 import com.augment.golden.bulbcontrol.Beans.HueApi.HueBulbGroup;
 import com.augment.golden.bulbcontrol.Beans.LifxApi.LifxBulb;
+import com.augment.golden.bulbcontrol.Beans.LifxApi.LifxBulbGroup;
 import com.augment.golden.bulbcontrol.Beans.SmartBulb;
 import com.augment.golden.bulbcontrol.BulbPagerIndicatorDecoration;
 import com.augment.golden.bulbcontrol.Changeable;
@@ -33,12 +32,16 @@ public class BulbActivity extends WearableActivity {
             if(type.equals("lifx")) changeable = LifxBulb.findBulb(id);
             if(type.equals("hue")) changeable = HueBulb.findBulb(id);
             if(type.equals("hueGroup")) changeable = HueBulbGroup.retrieveGroup(id);
+            if(type.equals("lifxGroup")) changeable = LifxBulbGroup.retrieveGroup(id);
         }
 
         RecyclerView recyclerView = findViewById(R.id.horizonal_view);
         recyclerView.setHasFixedSize(true);
         recyclerView.addItemDecoration(new BulbPagerIndicatorDecoration());
-        recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        LinearLayoutManager manager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        manager.setReverseLayout(true);
+        manager.setStackFromEnd(true);
+        recyclerView.setLayoutManager(manager);
 //        recyclerView.setAdapter(new BulbActionAdapter(m_bulb, this));
         recyclerView.setAdapter(new ChangeableActionAdapter(changeable, this));
 

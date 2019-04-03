@@ -14,6 +14,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.augment.golden.bulbcontrol.Activities.BulbActivity;
+import com.augment.golden.bulbcontrol.Beans.LifxApi.LifxBulb;
+import com.augment.golden.bulbcontrol.Beans.LifxApi.LifxBulbGroup;
 import com.augment.golden.bulbcontrol.Beans.SmartBulb;
 import com.augment.golden.bulbcontrol.BulbAnimations;
 import com.augment.golden.bulbcontrol.BulbGroup;
@@ -81,7 +83,7 @@ public class BulbGroupListAdapter extends RecyclerView.Adapter<BulbGroupListAdap
 
                 Intent intent = new Intent(context, BulbActivity.class);
                 intent.putExtra("id", bulb.getId());
-                intent.putExtra("type", "hueGroup");
+                intent.putExtra("type", group instanceof LifxBulbGroup ? "lifxGroup" : "hueGroup");
                 context.startActivity(intent);
             }
         });

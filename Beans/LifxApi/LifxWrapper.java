@@ -91,6 +91,14 @@ class LifxWrapper {
         return new String(labelArr);
     }
 
+    static String getGroup(String macAddress){
+        byte[] response;
+        do response = sendMessage(PacketFactory.buildGetGroupMessage(macAddress), true);
+        while(response.length == 0);
+        byte[] labelArr = Common.getSubArray(response, 52, 68);
+        return new String(labelArr);
+    }
+
     static List<String> getAllMacAddresses(){
         InetAddress address = getAddress();
 

@@ -52,7 +52,7 @@ public class BulbPagerIndicatorDecoration extends RecyclerView.ItemDecoration {
 
         // find active page (which should be highlighted)
         LinearLayoutManager layoutManager = (LinearLayoutManager) parent.getLayoutManager();
-        int activePosition = layoutManager.findFirstVisibleItemPosition();
+        int activePosition = layoutManager.findLastVisibleItemPosition();
         if (activePosition == RecyclerView.NO_POSITION) {
             return;
         }
@@ -64,7 +64,7 @@ public class BulbPagerIndicatorDecoration extends RecyclerView.ItemDecoration {
 
         // on swipe the active item will be positioned from [-width, 0]
         // interpolate offset for smooth animation
-        float progress = mInterpolator.getInterpolation(left * -1 / (float) width);
+        float progress = mInterpolator.getInterpolation(left / (float) width);
 
         drawHighlights(canvas, indicatorStartX, indicatorPosY, activePosition, progress, itemCount);
     }
@@ -76,11 +76,13 @@ public class BulbPagerIndicatorDecoration extends RecyclerView.ItemDecoration {
         final float itemWidth = mIndicatorItemLength + mIndicatorItemPadding;
 
         float start = indicatorStartX;
+//        float end = (itemWidth) * (itemCount);
         for (int i = 0; i < itemCount; i++) {
             // draw the line for every item
-//            canvas.drawLine(start, indicatorPosY, start + mIndicatorItemLength, indicatorPosY, mPaint);
             canvas.drawCircle(start, indicatorPosY, mIndicatorItemLength, mPaint);
+//            canvas.drawCircle(end, indicatorPosY, mIndicatorItemLength, mPaint);
             start += itemWidth;
+//            end -= itemWidth;
         }
     }
 
@@ -90,26 +92,18 @@ public class BulbPagerIndicatorDecoration extends RecyclerView.ItemDecoration {
         // width of item indicator including padding
         final float itemWidth = mIndicatorItemLength + mIndicatorItemPadding;
 
+        highlightPosition = Math.abs(highlightPosition - itemCount + 1);
+
         if (progress == 0F) {
             // no swipe, draw a normal indicator
             float highlightStart = indicatorStartX + itemWidth * highlightPosition;
-//            canvas.drawLine(highlightStart, indicatorPosY, highlightStart + mIndicatorItemLength, indicatorPosY, mPaint);
             canvas.drawCircle(highlightStart, indicatorPosY, mIndicatorItemLength, mPaint);
         } else {
             float highlightStart = indicatorStartX + itemWidth * highlightPosition;
             // calculate partial highlight
             float partialLength = mIndicatorItemLength * progress;
-
             // draw the cut off highlight
-//            canvas.drawLine(highlightStart + partialLength, indicatorPosY, highlightStart + mIndicatorItemLength, indicatorPosY, mPaint);
             canvas.drawCircle(highlightStart + partialLength, indicatorPosY, mIndicatorItemLength, mPaint);
-
-            // draw the highlight overlapping to the next item as well
-            if (highlightPosition < itemCount - 1) {
-                highlightStart += itemWidth;
-//                canvas.drawLine(highlightStart, indicatorPosY, highlightStart + partialLength, indicatorPosY, mPaint);
-//                canvas.drawCircle(highlightStart, indicatorPosY, mIndicatorItemLength, mPaint);
-            }
         }
     }
 

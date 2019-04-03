@@ -81,24 +81,6 @@ public class LifxBulb extends SmartBulb implements Changeable {
         return macAddresses.contains(bulb.getId());
     }
 
-    public static List<LifxBulb> getAllBulbs(Context context){
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-        List<LifxBulb> bulbs = new ArrayList<>();
-
-        Set<String> macs = sharedPreferences.getStringSet("macAddresses", new HashSet<String>());
-        if(macs != null)
-        {
-            for (String mac : macs)
-            {
-                LifxBulb bulb = getBulb(mac, context);
-                bulbs.add(bulb);
-                SmartBulb.addBulb(bulb);
-            }
-        }
-
-        return bulbs;
-    }
-
     public static List<LifxBulb> getLifxBulbs(Context context){
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         List<LifxBulb> bulbs = new ArrayList<>();
@@ -150,6 +132,8 @@ public class LifxBulb extends SmartBulb implements Changeable {
                 final LifxBulb bulb = new LifxBulb(macAddress);
                 String label = LifxWrapper.getLabel(macAddress);
                 bulb.setLabel(label);
+                String group = LifxWrapper.getGroup(macAddress);
+                bulb.setGroup(group);
 
                 HSBK hsbk = LifxWrapper.getHSBK(macAddress);
                 bulb.setHue(hsbk.getHue());

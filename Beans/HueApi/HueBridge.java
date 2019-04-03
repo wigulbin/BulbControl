@@ -111,9 +111,13 @@ public class HueBridge {
         Set<String> bridgeIds = sharedPreferences.getStringSet("groupIds", new HashSet<>());
         for (String groupId : bridgeIds) {
             HueBulbGroup group = retrieveGroup(groupId, context);
-            groups.add(group);
-            HueBulbGroup.addGroup(group);
+            if(group != null)
+            {
+                groups.add(group);
+                HueBulbGroup.addGroup(group);
+            }
         }
+
         return groups;
     }
     public static HueBulbGroup retrieveGroup(String id, Context context){

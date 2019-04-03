@@ -1,10 +1,6 @@
 package com.augment.golden.bulbcontrol.Adapters;
 
-import android.animation.ArgbEvaluator;
-import android.animation.ValueAnimator;
 import android.app.Activity;
-import android.content.Context;
-import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.support.annotation.NonNull;
@@ -14,22 +10,16 @@ import android.support.v7.widget.RecyclerView;
 import android.support.wear.widget.WearableLinearLayoutManager;
 import android.support.wear.widget.WearableRecyclerView;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.SeekBar;
-import android.widget.TextView;
 
-import com.augment.golden.bulbcontrol.Activities.BulbActivity;
 import com.augment.golden.bulbcontrol.Beans.HueApi.HueBulb;
 import com.augment.golden.bulbcontrol.Beans.HueApi.HueBulbGroup;
-import com.augment.golden.bulbcontrol.Beans.LifxApi.LifxBulb;
 import com.augment.golden.bulbcontrol.Beans.SmartBulb;
-import com.augment.golden.bulbcontrol.BulbAnimations;
 import com.augment.golden.bulbcontrol.BulbGroup;
 import com.augment.golden.bulbcontrol.Changeable;
 import com.augment.golden.bulbcontrol.CustomScrollingLayoutCallback;
-import com.augment.golden.bulbcontrol.OnChangeListeners.BulbActionListeners;
 import com.augment.golden.bulbcontrol.OnChangeListeners.ChangeableActionListeners;
 import com.augment.golden.bulbcontrol.R;
 import com.larswerkman.holocolorpicker.ColorPicker;
@@ -190,10 +180,10 @@ public class ChangeableActionAdapter extends RecyclerView.Adapter {
         image.setOnClickListener(listeners.getBulbImageListener());
     }
     private void handleBulbListItem(RecyclerView.ViewHolder holder){
-        ChangeableActionAdapter.BulbViewHolder viewHolder = (ChangeableActionAdapter.BulbViewHolder) holder;
         WearableRecyclerView recyclerView = ((WearableRecyclerView) ((BulbViewHolder) holder).mRecyclerView);
+        BulbGroup group = (BulbGroup) changeable;
         recyclerView.setLayoutManager(new LinearLayoutManager(activity));
-        SmartBulbListAdapter adapter = new SmartBulbListAdapter(SmartBulb.retrieveBulbs(), activity);
+        SmartBulbListAdapter adapter = new SmartBulbListAdapter(group.getBulbs(), activity);
         CustomScrollingLayoutCallback customScrollingLayoutCallback = new CustomScrollingLayoutCallback();
         recyclerView.setLayoutManager(new WearableLinearLayoutManager(activity, customScrollingLayoutCallback));
         recyclerView.setEdgeItemsCenteringEnabled(true);

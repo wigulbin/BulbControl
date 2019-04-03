@@ -6,6 +6,8 @@ import android.preference.PreferenceManager;
 
 import org.json.JSONObject;
 
+import java.util.HashSet;
+
 public class Common {
 
     public static String byteToHex(byte num) {
@@ -47,6 +49,17 @@ public class Common {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.clear();
+        editor.apply();
+    }
+
+    public static void clearAllBulbs(Context context){
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putStringSet("groupIds", new HashSet<>());
+        editor.putStringSet("lifxGroups", new HashSet<>());
+        editor.putStringSet("groupIds", new HashSet<>());
+        editor.putStringSet("macAddresses", new HashSet<>());
+
         editor.apply();
     }
 }
