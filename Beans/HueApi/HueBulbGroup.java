@@ -109,6 +109,7 @@ public class HueBulbGroup extends BulbGroup implements Changeable {
     }
 
 
+
     public void changePower(){
         HueBulbGroup group = this;
         new Thread(() -> new HueWrapper(group).changePower(group.on).send()).start();
@@ -133,8 +134,6 @@ public class HueBulbGroup extends BulbGroup implements Changeable {
         HueBulbGroup group = this;
         new Thread(() -> new HueWrapper(group).changeState(group.on, group.brightness, group.hue, group.saturation)).start();
     }
-
-
 
     @Override
     public void incrementHue(int amount) {

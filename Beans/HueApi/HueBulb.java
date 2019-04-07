@@ -18,56 +18,30 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class HueBulb extends SmartBulb implements Changeable {
 
-    private double xy;
     private String bridgeId = "";
 
     public HueBulb(){
         super();
     }
-    public HueBulb(String id){
-        super(id);
-    }
     public HueBulb(String id, String name){
         super (id, name);
     }
-    public HueBulb(String id, String name, String bridgeId){
-        super (id, name);
-        this.bridgeId = bridgeId;
-    }
+
+
     private final static int brightMax = 254;
-
-    public void save(Context context){
-        HueBulb bulb = this;
-        SmartBulb.addBulb(bulb);
-
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.remove(bulb.getId());
-        editor.apply();
-
-        Gson bulbJson = new Gson();
-        editor.putString(bulb.getId(), bulbJson.toJson(bulb));
-
-        // Find/Replace mac address
-        Set<String> macAddresses = new HashSet<>(sharedPreferences.getStringSet("hueids", new HashSet<String>()));
-        macAddresses.add(bulb.getId());
-        editor.putStringSet("hueids", macAddresses);
-        editor.apply();
-    }
 
     public static boolean exists(LifxBulb bulb, Context context){
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
 
-        Set<String> macAddresses = sharedPreferences.getStringSet("macAddresses", new HashSet<String>());
+        Set<String> macAddresses = sharedPreferences.getStringSet("hueids", new HashSet<>());
         return macAddresses.contains(bulb.getId());
     }
-
 
     public static List<HueBulb> getHueBulbs(Context context){
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         List<HueBulb> bulbs = new ArrayList<>();
 
-        Set<String> macs = sharedPreferences.getStringSet("hueids", new HashSet<String>());
+        Set<String> macs = sharedPreferences.getStringSet("hueids", new HashSet<>());
         if(macs != null)
         {
             for (String mac : macs)
@@ -89,6 +63,27 @@ public class HueBulb extends SmartBulb implements Changeable {
     }
 
 
+
+    public void save(Context context){
+        HueBulb bulb = this;
+        SmartBulb.addBulb(bulb);
+
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.remove(bulb.getId());
+        editor.apply();
+
+        Gson bulbJson = new Gson();
+        editor.putString(bulb.getId(), bulbJson.toJson(bulb));
+
+        // Find/Replace mac address
+        Set<String> macAddresses = new HashSet<>(sharedPreferences.getStringSet("hueids", new HashSet<>()));
+        macAddresses.add(bulb.getId());
+        editor.putStringSet("hueids", macAddresses);
+        editor.apply();
+    }
+
+
     public String getBridgeId() {
         return bridgeId;
     }
@@ -104,6 +99,7 @@ public class HueBulb extends SmartBulb implements Changeable {
     public static HueBulb findBulb(String id){
         return (HueBulb) SmartBulb.retrieveBulb(id);
     }
+
 
 
     public void changePower(){

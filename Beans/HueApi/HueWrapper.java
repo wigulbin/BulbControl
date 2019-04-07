@@ -1,8 +1,8 @@
 package com.augment.golden.bulbcontrol.Beans.HueApi;
 
 public class HueWrapper {
-    String url = "";
-    RequestManager manager;
+    private String url = "";
+    private RequestManager manager;
 
     public HueWrapper(HueBulb bulb){
         HueBridge bridge = HueBridge.getBridge(bulb.getBridgeId());

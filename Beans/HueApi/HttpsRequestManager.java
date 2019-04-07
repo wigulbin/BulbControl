@@ -13,20 +13,15 @@ import java.net.URL;
 import javax.net.ssl.HttpsURLConnection;
 
 public class HttpsRequestManager {
-
-    private String m_url = "";
     private HttpsURLConnection connection;
     private JSONObject m_data;
     private String m_type;
 
-    public HttpsRequestManager(String m_url, String type){
+    public HttpsRequestManager(String urlString, String type){
         try{
-            URL url = new URL("https://" + m_url);
+            URL url = new URL("https://" + urlString);
             connection = (HttpsURLConnection) url.openConnection();
-//            connection.setDoOutput(true);
-//            connection.setRequestProperty("Accept", "application/json");
             connection.setDoInput(true);
-//            connection.setRequestProperty("Content-Type", "application/json");
             connection.setRequestMethod(type);
             m_data = new JSONObject();
             m_type = type;
@@ -46,7 +41,7 @@ public class HttpsRequestManager {
     }
 
 
-    public String sendData(){
+    String sendData(){
         if(!m_type.equals("GET"))
             handleMessageSend();
 
@@ -54,7 +49,6 @@ public class HttpsRequestManager {
         try(DataInputStream input = new DataInputStream(connection.getInputStream() )){
             for( int c = input.read(); c != -1; c = input.read() )
                 message.append((char)c );
-            input.close();
         } catch (Exception e){
             e.printStackTrace();
         }
