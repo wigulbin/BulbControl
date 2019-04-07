@@ -10,6 +10,12 @@ import java.util.HashSet;
 
 public class Common {
 
+    public static String getSafeString(String string){
+        if(string == null) return "";
+
+        return string.trim();
+    }
+
     public static String byteToHex(byte num) {
         char[] hexDigits = new char[2];
         hexDigits[0] = Character.forDigit((num >> 4) & 0xF, 16);
