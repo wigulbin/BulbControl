@@ -8,7 +8,7 @@ public class CustomScrollingLayoutCallback extends WearableLinearLayoutManager.L
     /** How much should we scale the icon at most. */
     private static final float MAX_ICON_PROGRESS = 0.65f;
 
-    private float mProgressToCenter;
+    private float m_progressToCenter;
 
     @Override
     public void onLayoutFinished(View child, RecyclerView parent) {
@@ -18,11 +18,11 @@ public class CustomScrollingLayoutCallback extends WearableLinearLayoutManager.L
         float yRelativeToCenterOffset = (child.getY() / parent.getHeight()) + centerOffset;
 
         // Normalize for center
-        mProgressToCenter = Math.abs(0.5f - yRelativeToCenterOffset);
+        m_progressToCenter = Math.abs(0.5f - yRelativeToCenterOffset);
         // Adjust to the maximum scale
-        mProgressToCenter = Math.min(mProgressToCenter, MAX_ICON_PROGRESS);
+        m_progressToCenter = Math.min(m_progressToCenter, MAX_ICON_PROGRESS);
 
-        child.setScaleX(1 - mProgressToCenter);
-        child.setScaleY(1 - mProgressToCenter);
+        child.setScaleX(1 - m_progressToCenter);
+        child.setScaleY(1 - m_progressToCenter);
     }
 }

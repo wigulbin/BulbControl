@@ -19,11 +19,9 @@ import android.widget.Toast;
 
 import com.augment.golden.bulbcontrol.Adapters.BulbGroupListAdapter;
 import com.augment.golden.bulbcontrol.Adapters.SmartBulbListAdapter;
-import com.augment.golden.bulbcontrol.AsyncTasks.BulbTask;
 import com.augment.golden.bulbcontrol.Beans.HueApi.HueBridge;
 import com.augment.golden.bulbcontrol.Beans.HueApi.RequestManager;
 import com.augment.golden.bulbcontrol.Beans.LifxApi.LifxBulbGroup;
-import com.augment.golden.bulbcontrol.Beans.LightInfo;
 import com.augment.golden.bulbcontrol.Beans.LifxApi.LifxBulb;
 import com.augment.golden.bulbcontrol.Beans.SmartBulb;
 import com.augment.golden.bulbcontrol.Beans.TaskInfo;
@@ -154,9 +152,7 @@ public class MainActivity extends WearableActivity {
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event){
         if(keyCode == KeyEvent.KEYCODE_STEM_1){
-
-            new BulbTask().execute(new LightInfo().changePower(m_on, ""));
-            m_on = !m_on;
+            //TODO Add logic to turn on/off all bulbs in current list
         }
 
         return super.onKeyDown(keyCode, event);
