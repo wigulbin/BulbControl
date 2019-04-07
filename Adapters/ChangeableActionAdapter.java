@@ -9,6 +9,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.wear.widget.WearableLinearLayoutManager;
 import android.support.wear.widget.WearableRecyclerView;
+import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -16,7 +17,6 @@ import android.widget.SeekBar;
 
 import com.augment.golden.bulbcontrol.Beans.HueApi.HueBulb;
 import com.augment.golden.bulbcontrol.Beans.HueApi.HueBulbGroup;
-import com.augment.golden.bulbcontrol.Beans.SmartBulb;
 import com.augment.golden.bulbcontrol.BulbGroup;
 import com.augment.golden.bulbcontrol.Changeable;
 import com.augment.golden.bulbcontrol.CustomScrollingLayoutCallback;
@@ -30,16 +30,16 @@ import java.util.List;
 import java.util.Map;
 
 public class ChangeableActionAdapter extends RecyclerView.Adapter {
-    private Map<Integer, RecyclerView.ViewHolder> holderMap;
-    private Activity activity;
-    private Changeable changeable;
-    private ChangeableActionListeners listeners;
+    private SparseArray<RecyclerView.ViewHolder> m_holderMap;
+    private Activity m_activity;
+    private Changeable m_changeable;
+    private ChangeableActionListeners m_listeners;
 
     public ChangeableActionAdapter(Changeable changeable, Activity activity){
-        holderMap = new HashMap<>();
-        this.changeable = changeable;
-        this.activity = activity;
-        listeners = new ChangeableActionListeners(changeable);
+        m_holderMap = new SparseArray<>();
+        m_changeable = changeable;
+        m_activity = activity;
+        m_listeners = new ChangeableActionListeners(changeable);
     }
 
     public static class BulbColorActionViewHolder extends RecyclerView.ViewHolder{
@@ -82,12 +82,12 @@ public class ChangeableActionAdapter extends RecyclerView.Adapter {
     }
 
     public static class BulbViewHolder extends RecyclerView.ViewHolder{
-        public ConstraintLayout mConstraintLayout;
-        public RecyclerView mRecyclerView;
-        public BulbViewHolder(ConstraintLayout v){
+        ConstraintLayout m_constraintLayout;
+        RecyclerView m_recyclerView;
+        BulbViewHolder(ConstraintLayout v){
             super(v);
-            mConstraintLayout = v;
-            mRecyclerView = (RecyclerView) v.getViewById(R.id.recycler_view);
+            m_constraintLayout = v;
+            m_recyclerView = (RecyclerView) v.getViewById(R.id.recycler_view);
         }
     }
 
@@ -98,20 +98,19 @@ public class ChangeableActionAdapter extends RecyclerView.Adapter {
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(final ViewGroup parent, final int viewType) {
-        System.out.println("View Type " + viewType);
         if(viewType == 2) {
             RecyclerView.ViewHolder holder = new ChangeableActionAdapter.BulbColorActionViewHolder((ConstraintLayout) LayoutInflater.from(parent.getContext()).inflate(R.layout.bulb_color, parent, false));
-            holderMap.put(viewType, holder);
+            m_holderMap.put(viewType, holder);
             return holder;
         }
         if(viewType == 1) {
             RecyclerView.ViewHolder holder = new ChangeableActionAdapter.BulbSaturationActionViewHolder((ConstraintLayout) LayoutInflater.from(parent.getContext()).inflate(R.layout.bulb_saturation, parent, false));
-            holderMap.put(viewType, holder);
+            m_holderMap.put(viewType, holder);
             return holder;
         }
         if(viewType == 0) {
             RecyclerView.ViewHolder holder = new ChangeableActionAdapter.BulbWarmthActionViewHolder((ConstraintLayout) LayoutInflater.from(parent.getContext()).inflate(R.layout.bulb_warmth, parent, false));
-            holderMap.put(viewType, holder);
+            m_holderMap.put(viewType, holder);
             return holder;
         }
         if(viewType == 4) {
@@ -121,7 +120,7 @@ public class ChangeableActionAdapter extends RecyclerView.Adapter {
         }
 
         RecyclerView.ViewHolder holder = new ChangeableActionAdapter.BulbBrightActionViewHolder((ConstraintLayout) LayoutInflater.from(parent.getContext()).inflate(R.layout.bulb_bright, parent, false));
-        holderMap.put(viewType, holder);
+        m_holderMap.put(viewType, holder);
         return holder;
     }
     @Override public void onBindViewHolder(final RecyclerView.ViewHolder holder, final int position) {
@@ -135,29 +134,26 @@ public class ChangeableActionAdapter extends RecyclerView.Adapter {
 
     @Override
     public int getItemCount() {
-        if(changeable instanceof BulbGroup)
+        if(m_changeable instanceof BulbGroup)
             return 5;
         return 4;
     }
-    public void setItems(@NonNull final List items) {
-    }
-
 
     private void handleWarmthItem(RecyclerView.ViewHolder holder){
         ChangeableActionAdapter.BulbWarmthActionViewHolder warmthViewHolder = (ChangeableActionAdapter.BulbWarmthActionViewHolder) holder;
         SeekBar seekBar = warmthViewHolder.m_bulbSeek;
-        if(changeable instanceof HueBulb || changeable instanceof HueBulbGroup){
+        if(m_changeable instanceof HueBulb || m_changeable instanceof HueBulbGroup){
             seekBar.setMax(347);
         }
         seekBar.getThumb().setColorFilter(Color.parseColor("#ffa148"), PorterDuff.Mode.SRC_IN);
         seekBar.getProgressDrawable().setColorFilter(Color.parseColor("#ffa148"), PorterDuff.Mode.SRC_IN);
-        seekBar.setOnTouchListener(listeners.getSeekBarTouchListener(warmthViewHolder.m_constraintLayout));
-        seekBar.setOnSeekBarChangeListener(listeners.getWarmthSeekBarChangeListener());
+        seekBar.setOnTouchListener(m_listeners.getSeekBarTouchListener(warmthViewHolder.m_constraintLayout));
+        seekBar.setOnSeekBarChangeListener(m_listeners.getWarmthSeekBarChangeListener());
     }
     private void handleSaturationItem(RecyclerView.ViewHolder holder){
         ChangeableActionAdapter.BulbSaturationActionViewHolder satViewHolder = (ChangeableActionAdapter.BulbSaturationActionViewHolder) holder;
-        ChangeableActionAdapter.BulbColorActionViewHolder colorViewHolder = (ChangeableActionAdapter.BulbColorActionViewHolder) holderMap.get(2);
-        satViewHolder.m_saturationBar.setOnSaturationChangedListener(listeners.createSaturationChangeListener());
+        ChangeableActionAdapter.BulbColorActionViewHolder colorViewHolder = (ChangeableActionAdapter.BulbColorActionViewHolder) m_holderMap.get(2);
+        satViewHolder.m_saturationBar.setOnSaturationChangedListener(m_listeners.createSaturationChangeListener());
 
         if(colorViewHolder != null && colorViewHolder.m_colorPicker != null && satViewHolder.m_saturationBar != null)
             colorViewHolder.m_colorPicker.addSaturationBar(satViewHolder.m_saturationBar);
@@ -165,27 +161,27 @@ public class ChangeableActionAdapter extends RecyclerView.Adapter {
     private void handleColorItem(RecyclerView.ViewHolder holder){
         ChangeableActionAdapter.BulbColorActionViewHolder colorViewHolder = (ChangeableActionAdapter.BulbColorActionViewHolder) holder;
         colorViewHolder.m_colorPicker.setShowOldCenterColor(false);
-        colorViewHolder.m_colorPicker.setOnColorChangedListener(listeners.createColorChangeListener());
-        ChangeableActionAdapter.BulbSaturationActionViewHolder satViewHolder = (ChangeableActionAdapter.BulbSaturationActionViewHolder) holderMap.get(1);
+        colorViewHolder.m_colorPicker.setOnColorChangedListener(m_listeners.createColorChangeListener());
+        ChangeableActionAdapter.BulbSaturationActionViewHolder satViewHolder = (ChangeableActionAdapter.BulbSaturationActionViewHolder) m_holderMap.get(1);
         if(satViewHolder != null && satViewHolder.m_saturationBar != null &&  colorViewHolder.m_colorPicker != null)
             colorViewHolder.m_colorPicker.addSaturationBar(satViewHolder.m_saturationBar);
     }
     private void handleBrightnessItem(RecyclerView.ViewHolder holder){
         ChangeableActionAdapter.BulbBrightActionViewHolder brightViewHolder = (ChangeableActionAdapter.BulbBrightActionViewHolder) holder;
         SeekBar seekBar = brightViewHolder.m_bulbBright;
-        seekBar.setOnTouchListener(listeners.getSeekBarTouchListener(brightViewHolder.m_constraintLayout));
-        seekBar.setOnSeekBarChangeListener(listeners.getBrightnessSeekBarChangeListener(brightViewHolder.m_bulbPower));
+        seekBar.setOnTouchListener(m_listeners.getSeekBarTouchListener(brightViewHolder.m_constraintLayout));
+        seekBar.setOnSeekBarChangeListener(m_listeners.getBrightnessSeekBarChangeListener(brightViewHolder.m_bulbPower));
 
         ImageView image = brightViewHolder.m_bulbPower;
-        image.setOnClickListener(listeners.getBulbImageListener());
+        image.setOnClickListener(m_listeners.getBulbImageListener());
     }
     private void handleBulbListItem(RecyclerView.ViewHolder holder){
-        WearableRecyclerView recyclerView = ((WearableRecyclerView) ((BulbViewHolder) holder).mRecyclerView);
-        BulbGroup group = (BulbGroup) changeable;
-        recyclerView.setLayoutManager(new LinearLayoutManager(activity));
-        SmartBulbListAdapter adapter = new SmartBulbListAdapter(group.getBulbs(), activity);
+        WearableRecyclerView recyclerView = ((WearableRecyclerView) ((BulbViewHolder) holder).m_recyclerView);
+        BulbGroup group = (BulbGroup) m_changeable;
+        recyclerView.setLayoutManager(new LinearLayoutManager(m_activity));
+        SmartBulbListAdapter adapter = new SmartBulbListAdapter(group.getBulbs(), m_activity);
         CustomScrollingLayoutCallback customScrollingLayoutCallback = new CustomScrollingLayoutCallback();
-        recyclerView.setLayoutManager(new WearableLinearLayoutManager(activity, customScrollingLayoutCallback));
+        recyclerView.setLayoutManager(new WearableLinearLayoutManager(m_activity, customScrollingLayoutCallback));
         recyclerView.setEdgeItemsCenteringEnabled(true);
         recyclerView.setAdapter(adapter);
     }
