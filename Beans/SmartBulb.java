@@ -1,5 +1,8 @@
 package com.augment.golden.bulbcontrol.Beans;
 
+import android.content.Context;
+
+import com.augment.golden.bulbcontrol.Beans.HueApi.HueBulb;
 import com.augment.golden.bulbcontrol.Beans.LifxApi.LifxBulb;
 
 import java.util.ArrayList;
@@ -31,6 +34,17 @@ public class SmartBulb {
     public static List<SmartBulb> retrieveBulbs(){
         return new ArrayList<>(bulbMap.values());
     }
+    public static List<SmartBulb> findSmartBulbs(Context context){
+        List<LifxBulb> lifxBulbs = LifxBulb.getLifxBulbs(context);
+        List<HueBulb> hueBulbs = HueBulb.getHueBulbs(context);
+
+        List<SmartBulb> bulbs = new ArrayList<>();
+        bulbs.addAll(lifxBulbs);
+        bulbs.addAll(hueBulbs);
+
+        return bulbs;
+    }
+
 
     public SmartBulb(){}
     public SmartBulb(String id){
