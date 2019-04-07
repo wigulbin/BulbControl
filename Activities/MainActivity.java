@@ -199,7 +199,7 @@ public class MainActivity extends WearableActivity {
             m_groupAdapter = params[0].getGroupAdapter();
 
             List<SmartBulb> bulbs = new ArrayList<>();
-            List<LifxBulb> lifxBulbs = LifxBulb.findAllBulbs(m_adapter, m_context.get());
+            List<LifxBulb> lifxBulbs = LifxBulb.findAllBulbs(m_context.get());
             bulbs.addAll(lifxBulbs);
             bulbs.addAll(HueBridge.findAllBulbs(m_context.get()));
 

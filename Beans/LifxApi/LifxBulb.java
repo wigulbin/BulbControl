@@ -68,7 +68,7 @@ public class LifxBulb extends SmartBulb implements Changeable {
         editor.putString(bulb.getId(), bulbJson.toJson(bulb));
 
         // Find/Replace mac address
-        Set<String> macAddresses = new HashSet<>(sharedPreferences.getStringSet("macAddresses", new HashSet<String>()));
+        Set<String> macAddresses = new HashSet<>(sharedPreferences.getStringSet("macAddresses", new HashSet<>()));
         macAddresses.add(bulb.getId());
         editor.putStringSet("macAddresses", macAddresses);
         editor.apply();
@@ -77,7 +77,7 @@ public class LifxBulb extends SmartBulb implements Changeable {
     public static boolean exists(LifxBulb bulb, Context context){
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
 
-        Set<String> macAddresses = sharedPreferences.getStringSet("macAddresses", new HashSet<String>());
+        Set<String> macAddresses = sharedPreferences.getStringSet("macAddresses", new HashSet<>());
         return macAddresses.contains(bulb.getId());
     }
 
@@ -85,7 +85,7 @@ public class LifxBulb extends SmartBulb implements Changeable {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         List<LifxBulb> bulbs = new ArrayList<>();
 
-        Set<String> macs = sharedPreferences.getStringSet("macAddresses", new HashSet<String>());
+        Set<String> macs = sharedPreferences.getStringSet("macAddresses", new HashSet<>());
         if(macs != null)
         {
             for (String mac : macs)
@@ -105,12 +105,9 @@ public class LifxBulb extends SmartBulb implements Changeable {
 
     public static LifxBulb getBulb(String macAddress, Context context){
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-        LifxBulb bulb = new LifxBulb(macAddress);
         String bulbJSON = sharedPreferences.getString(macAddress, "");
         Gson bulbJson = new Gson();
-        bulb = bulbJson.fromJson(bulbJSON, LifxBulb.class);
-
-        return bulb;
+        return bulbJson.fromJson(bulbJSON, LifxBulb.class);
     }
 
     public String getLocation() {
@@ -123,7 +120,7 @@ public class LifxBulb extends SmartBulb implements Changeable {
 
 
     //Bulb network methods
-    public static List<LifxBulb> findAllBulbs(final SmartBulbListAdapter adapter, final Context context){
+    public static List<LifxBulb> findAllBulbs(final Context context){
         Set<String> macSet = new HashSet<>();
         List<LifxBulb> bulbs = new ArrayList<>();
         List<String> macAddresses = LifxWrapper.getAllMacAddresses();
@@ -156,6 +153,8 @@ public class LifxBulb extends SmartBulb implements Changeable {
 
         return bulbs;
     }
+
+
     public void changePower(){
         LifxBulb bulb = this;
         new Thread(() -> LifxWrapper.setPower(bulb.getId(), bulb.isOn(), 500)).start();
@@ -165,7 +164,6 @@ public class LifxBulb extends SmartBulb implements Changeable {
         LifxBulb bulb = this;
         new Thread(() ->  LifxWrapper.setHSBK(bulb)).start();
     }
-
 
     public void changeBrightness(){
         LifxBulb bulb = this;
@@ -191,8 +189,6 @@ public class LifxBulb extends SmartBulb implements Changeable {
         LifxBulb bulb = this;
         new Thread(() ->  LifxWrapper.setHSBK(bulb)).start();
     }
-
-
 
     @Override
     public void incrementHue(int amount) {

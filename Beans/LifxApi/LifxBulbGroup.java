@@ -34,6 +34,13 @@ public class LifxBulbGroup extends BulbGroup implements Changeable {
 
     private static Map<String, LifxBulbGroup> bulbGroupMap = new ConcurrentHashMap<>();
 
+
+    public LifxBulbGroup(String name) {
+        super(name);
+        this.lights = new ArrayList<>();
+    }
+
+
     public static LifxBulbGroup retrieveGroup(String id){
         return bulbGroupMap.get(id);
     }
@@ -124,11 +131,6 @@ public class LifxBulbGroup extends BulbGroup implements Changeable {
         String bulbJSON = sharedPreferences.getString(id, "");
         Gson bulbJson = new Gson();
         return bulbJson.fromJson(bulbJSON, LifxBulbGroup.class);
-    }
-
-    public LifxBulbGroup(String name) {
-        super(name);
-        this.lights = new ArrayList<>();
     }
 
     public List<String> getLights() {
