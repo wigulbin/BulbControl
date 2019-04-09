@@ -12,34 +12,34 @@ import java.net.URL;
 import javax.net.ssl.HttpsURLConnection;
 
 public class RequestManager {
-    private HttpURLConnection m_connection;
-    private JSONObject m_data;
-    private String m_type;
+    private HttpURLConnection connection;
+    private JSONObject data;
+    private String type;
 
     public RequestManager(String urlString, String type){
         try{
             URL url = new URL("http://" + urlString);
-            m_connection = (HttpURLConnection) url.openConnection();
+            connection = (HttpURLConnection) url.openConnection();
             if(!type.equals("GET")){
-                m_connection.setDoOutput(true);
-                m_connection.setDoInput(true);
-                m_connection.setRequestProperty("Content-Type", "application/json");
+                connection.setDoOutput(true);
+                connection.setDoInput(true);
+                connection.setRequestProperty("Content-Type", "application/json");
             }
-            m_connection.setRequestMethod(type);
-            m_data = new JSONObject();
-            m_type = type;
+            connection.setRequestMethod(type);
+            data = new JSONObject();
+            this.type = type;
         }catch (Exception e){
             e.printStackTrace();
         }
     }
 
     public String sendData(){
-        if(!m_type.equals("GET"))
+        if(!type.equals("GET"))
             handleMessageSend();
 
         StringBuilder message = new StringBuilder();
-        try(InputStream stream = m_connection.getInputStream()){
-            int responseCode = m_connection.getResponseCode();
+        try(InputStream stream = connection.getInputStream()){
+            int responseCode = connection.getResponseCode();
             if (responseCode != HttpsURLConnection.HTTP_OK)
                 throw new IOException("HTTP error code: " + responseCode);
 
@@ -53,10 +53,10 @@ public class RequestManager {
     }
 
     private void handleMessageSend(){
-        try(OutputStreamWriter writer = new OutputStreamWriter(m_connection.getOutputStream())){
-            writer.write(m_data.toString());
+        try(OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream())){
+            writer.write(data.toString());
             writer.flush();
-            m_connection.connect();
+            connection.connect();
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -66,7 +66,7 @@ public class RequestManager {
 
     public boolean addData(String key, String value){
         try{
-            m_data.put(key, value);
+            data.put(key, value);
         }catch (JSONException e){
             e.printStackTrace();
             return false;
@@ -76,7 +76,7 @@ public class RequestManager {
 
     public boolean addData(String key, boolean value){
         try{
-            m_data.put(key, value);
+            data.put(key, value);
         }catch (JSONException e){
             e.printStackTrace();
             return false;
@@ -86,7 +86,7 @@ public class RequestManager {
 
     public boolean addData(String key, int value){
         try{
-            m_data.put(key, value);
+            data.put(key, value);
         }catch (JSONException e){
             e.printStackTrace();
             return false;

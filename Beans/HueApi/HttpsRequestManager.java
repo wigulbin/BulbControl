@@ -4,18 +4,15 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.DataInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
 import java.net.URL;
 
 import javax.net.ssl.HttpsURLConnection;
 
 public class HttpsRequestManager {
     private HttpsURLConnection connection;
-    private JSONObject m_data;
-    private String m_type;
+    private JSONObject data;
+    private String type;
 
     public HttpsRequestManager(String urlString, String type){
         try{
@@ -23,8 +20,8 @@ public class HttpsRequestManager {
             connection = (HttpsURLConnection) url.openConnection();
             connection.setDoInput(true);
             connection.setRequestMethod(type);
-            m_data = new JSONObject();
-            m_type = type;
+            data = new JSONObject();
+            this.type = type;
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -32,7 +29,7 @@ public class HttpsRequestManager {
 
     public boolean addData(String key, String value){
         try{
-            m_data.put(key, value);
+            data.put(key, value);
         }catch (JSONException e){
             e.printStackTrace();
             return false;
@@ -42,7 +39,7 @@ public class HttpsRequestManager {
 
 
     String sendData(){
-        if(!m_type.equals("GET"))
+        if(!type.equals("GET"))
             handleMessageSend();
 
         StringBuilder message = new StringBuilder();
@@ -58,7 +55,7 @@ public class HttpsRequestManager {
 
     private void handleMessageSend(){
         try(OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream())){
-            writer.write(m_data.toString());
+            writer.write(data.toString());
             writer.flush();
             connection.connect();
         }catch (Exception e){

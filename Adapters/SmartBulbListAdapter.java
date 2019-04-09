@@ -8,7 +8,6 @@ import android.graphics.Color;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -26,9 +25,9 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class SmartBulbListAdapter extends RecyclerView.Adapter<SmartBulbListAdapter.BulbViewHolder> {
-    private List<SmartBulb> m_bulbs;
-    private Map<String, SmartBulb> m_bulbMap;
-    private Context m_context;
+    private List<SmartBulb> bulbs;
+    private Map<String, SmartBulb> bulbMap;
+    private Context context;
 
     static class BulbViewHolder extends RecyclerView.ViewHolder{
         ConstraintLayout mConstraintLayout;
@@ -43,10 +42,10 @@ public class SmartBulbListAdapter extends RecyclerView.Adapter<SmartBulbListAdap
     }
 
     public SmartBulbListAdapter(List<SmartBulb> bulbs, Context context){
-        m_bulbs = bulbs;
-        m_context = context;
-        m_bulbMap = new ConcurrentHashMap<>();
-        bulbs.forEach(bulb -> m_bulbMap.put(bulb.getId(), bulb));
+        this.bulbs = bulbs;
+        this.context = context;
+        bulbMap = new ConcurrentHashMap<>();
+        bulbs.forEach(bulb -> bulbMap.put(bulb.getId(), bulb));
     }
 
     @Override
@@ -59,9 +58,9 @@ public class SmartBulbListAdapter extends RecyclerView.Adapter<SmartBulbListAdap
 
     @Override
     public void onBindViewHolder(BulbViewHolder holder, final int position){
-        holder.mTextView.setText(m_bulbs.get(position).getLabel());
+        holder.mTextView.setText(bulbs.get(position).getLabel());
 
-        Changeable changeable = (Changeable) m_bulbs.get(position);
+        Changeable changeable = (Changeable) bulbs.get(position);
         holder.mImageView.setOnClickListener(new ChangeableActionListeners(changeable).getBulbImageListener());
         BulbAnimations.bulbPowerAnimation(holder.mImageView, changeable);
 
@@ -72,24 +71,24 @@ public class SmartBulbListAdapter extends RecyclerView.Adapter<SmartBulbListAdap
                 colorAnimation.setDuration(500); // milliseconds
                 colorAnimation.addUpdateListener(animator ->  holder.itemView.setBackgroundColor((int) animator.getAnimatedValue()));
                 colorAnimation.start();
-                SmartBulb bulb = m_bulbs.get(position);
+                SmartBulb bulb = bulbs.get(position);
 
-                Intent intent = new Intent(m_context, BulbActivity.class);
+                Intent intent = new Intent(context, BulbActivity.class);
                 intent.putExtra("id", bulb.getId());
                 String type = bulb instanceof LifxBulb ? "lifx" : "hue";
                 intent.putExtra("type", type);
-                m_context.startActivity(intent);
+                context.startActivity(intent);
         });
     }
 
     @Override
     public int getItemCount(){
-        return m_bulbs.size();
+        return bulbs.size();
     }
 
     void remove(SmartBulb bulb){
-        m_bulbs.remove(bulb);
-        m_bulbMap.remove(bulb.getId());
+        bulbs.remove(bulb);
+        bulbMap.remove(bulb.getId());
         this.notifyDataSetChanged();
     }
     public void removeAll(List<SmartBulb> bulbs){
@@ -97,17 +96,17 @@ public class SmartBulbListAdapter extends RecyclerView.Adapter<SmartBulbListAdap
     }
 
     public void add(SmartBulb bulb){
-        if(!m_bulbMap.containsKey(bulb.getId())){
-            m_bulbs.add(bulb);
+        if(!bulbMap.containsKey(bulb.getId())){
+            bulbs.add(bulb);
             this.notifyDataSetChanged();
         }
-        m_bulbMap.put(bulb.getId(), bulb);
+        bulbMap.put(bulb.getId(), bulb);
     }
     public void addAll(List<SmartBulb> bulbs){
         bulbs.forEach(this::add);
     }
 
     public SmartBulb getBulb(String id){
-        return m_bulbMap.get(id);
+        return bulbMap.get(id);
     }
 }

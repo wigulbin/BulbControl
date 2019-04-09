@@ -17,7 +17,7 @@ import com.augment.golden.bulbcontrol.Common;
 import com.augment.golden.bulbcontrol.R;
 
 public class BulbActivity extends WearableActivity {
-    private Changeable m_changeable;
+    private Changeable changeable;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,12 +36,12 @@ public class BulbActivity extends WearableActivity {
     }
 
     private Changeable getChangeable(String id, String type){
-        if(type.equals("lifx")) m_changeable = LifxBulb.findBulb(id);
-        if(type.equals("hue")) m_changeable = HueBulb.findBulb(id);
-        if(type.equals("hueGroup")) m_changeable = HueBulbGroup.retrieveGroup(id);
-        if(type.equals("lifxGroup")) m_changeable = LifxBulbGroup.retrieveGroup(id);
+        if(type.equals("lifx")) changeable = LifxBulb.findBulb(id);
+        if(type.equals("hue")) changeable = HueBulb.findBulb(id);
+        if(type.equals("hueGroup")) changeable = HueBulbGroup.retrieveGroup(id);
+        if(type.equals("lifxGroup")) changeable = LifxBulbGroup.retrieveGroup(id);
 
-        return m_changeable;
+        return changeable;
     }
 
     private void setRecyclerView(){
@@ -49,7 +49,7 @@ public class BulbActivity extends WearableActivity {
         recyclerView.setHasFixedSize(true);
         recyclerView.addItemDecoration(new BulbPagerIndicatorDecoration());
         recyclerView.setLayoutManager(createLayoutManger());
-        recyclerView.setAdapter(new ChangeableActionAdapter(m_changeable, this));
+        recyclerView.setAdapter(new ChangeableActionAdapter(changeable, this));
 
         new PagerSnapHelper().attachToRecyclerView(recyclerView);
     }

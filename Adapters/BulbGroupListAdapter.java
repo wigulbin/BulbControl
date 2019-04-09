@@ -25,28 +25,28 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class BulbGroupListAdapter extends RecyclerView.Adapter<BulbGroupListAdapter.GroupViewHolder> {
-    private List<BulbGroup> m_bulbGroups;
-    private Context m_context;
-    private Map<String, BulbGroup> m_groupMap;
+    private List<BulbGroup> bulbGroups;
+    private Context context;
+    private Map<String, BulbGroup> groupMap;
 
     static class GroupViewHolder extends RecyclerView.ViewHolder{
-        ConstraintLayout mConstraintLayout;
-        TextView mTextView;
-        ImageView mImageView;
+        ConstraintLayout constraintLayout;
+        TextView textView;
+        ImageView imageView;
         GroupViewHolder(ConstraintLayout v){
             super(v);
-            mConstraintLayout = v;
-            mTextView = (TextView) v.getViewById(R.id.textView);
-            mImageView = (ImageView) v.getViewById(R.id.imageView);
+            constraintLayout = v;
+            textView = (TextView) v.getViewById(R.id.textView);
+            imageView = (ImageView) v.getViewById(R.id.imageView);
         }
     }
 
 
     public BulbGroupListAdapter(List<BulbGroup> groups, Context context){
-        m_bulbGroups = groups;
-        m_context = context;
-        m_groupMap = new ConcurrentHashMap<>();
-        groups.forEach(group -> m_groupMap.put(group.getId(), group));
+        bulbGroups = groups;
+        this.context = context;
+        groupMap = new ConcurrentHashMap<>();
+        groups.forEach(group -> groupMap.put(group.getId(), group));
     }
 
     @Override
@@ -58,12 +58,12 @@ public class BulbGroupListAdapter extends RecyclerView.Adapter<BulbGroupListAdap
 
     @Override
     public void onBindViewHolder(GroupViewHolder holder, final int position){
-        BulbGroup group = m_bulbGroups.get(position);
+        BulbGroup group = bulbGroups.get(position);
 
-        holder.mTextView.setText(group.getName());
+        holder.textView.setText(group.getName());
         Changeable changeable = (Changeable) group;
-        holder.mImageView.setOnClickListener(new ChangeableActionListeners(changeable).getBulbImageListener());
-        BulbAnimations.bulbPowerAnimation(holder.mImageView, changeable);
+        holder.imageView.setOnClickListener(new ChangeableActionListeners(changeable).getBulbImageListener());
+        BulbAnimations.bulbPowerAnimation(holder.imageView, changeable);
 
         holder.itemView.setOnClickListener((v) -> {
                 int colorFrom = Color.BLACK;
@@ -72,23 +72,23 @@ public class BulbGroupListAdapter extends RecyclerView.Adapter<BulbGroupListAdap
                 colorAnimation.setDuration(500); // milliseconds
                 colorAnimation.addUpdateListener(animator -> holder.itemView.setBackgroundColor((int) animator.getAnimatedValue()));
                 colorAnimation.start();
-                BulbGroup bulb = m_bulbGroups.get(position);
+                BulbGroup bulb = bulbGroups.get(position);
 
-                Intent intent = new Intent(m_context, BulbActivity.class);
+                Intent intent = new Intent(context, BulbActivity.class);
                 intent.putExtra("id", bulb.getId());
                 intent.putExtra("type", group instanceof LifxBulbGroup ? "lifxGroup" : "hueGroup");
-                m_context.startActivity(intent);
+                context.startActivity(intent);
         });
     }
 
     @Override
     public int getItemCount(){
-        return m_bulbGroups.size();
+        return bulbGroups.size();
     }
 
 
     public void remove(BulbGroup group){
-        m_bulbGroups.remove(group);
+        bulbGroups.remove(group);
         this.notifyDataSetChanged();
     }
     public void removeAll(List<BulbGroup> group){
@@ -96,11 +96,11 @@ public class BulbGroupListAdapter extends RecyclerView.Adapter<BulbGroupListAdap
     }
 
     public void add(BulbGroup group){
-        if(!m_groupMap.containsKey(group.getId())){
-            m_bulbGroups.add(group);
+        if(!groupMap.containsKey(group.getId())){
+            bulbGroups.add(group);
             this.notifyDataSetChanged();
         }
-        m_groupMap.put(group.getId(), group);
+        groupMap.put(group.getId(), group);
     }
     public void addAll(List<BulbGroup> groups){
         groups.forEach(this::add);

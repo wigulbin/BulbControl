@@ -1,33 +1,31 @@
 package com.augment.golden.bulbcontrol.Beans.LifxApi;
 
-import com.augment.golden.bulbcontrol.Beans.PacketBuilder;
-
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 class PacketFactory {
-    private BitSet m_bits;
-    private List<Byte> m_byteList;
+    private BitSet bits;
+    private List<Byte> byteList;
 
     private PacketFactory(){
-        m_bits = new BitSet();
-        m_byteList = new ArrayList<>();
+        bits = new BitSet();
+        byteList = new ArrayList<>();
 
         //Initialize length bytes
-        m_byteList.add(((byte) 0));
-        m_byteList.add(((byte) 0));
+        byteList.add(((byte) 0));
+        byteList.add(((byte) 0));
 
         createHeader(true);
     }
     private PacketFactory(boolean tagged){
-        m_bits = new BitSet();
-        m_byteList = new ArrayList<>();
+        bits = new BitSet();
+        byteList = new ArrayList<>();
 
         //Initialize length bytes
-        m_byteList.add(((byte) 0));
-        m_byteList.add(((byte) 0));
+        byteList.add(((byte) 0));
+        byteList.add(((byte) 0));
 
         createHeader(tagged);
     }
@@ -66,10 +64,10 @@ class PacketFactory {
     }
 
     private void setAckRequired(){
-        m_bits.set(182);
+        bits.set(182);
     }
     private void setResRequired(){
-        m_bits.set(183);
+        bits.set(183);
     }
     private void setSequence(){
         addBitsFromInt(1000, 176);
@@ -99,13 +97,13 @@ class PacketFactory {
         PacketFactory factory = new PacketFactory();
         factory.setMessage(102);
         factory.setTarget(bulb.getId());
-        factory.m_byteList.add((byte) 0);
+        factory.byteList.add((byte) 0);
         factory.setHSBK(bulb.getHue(), bulb.getSaturation(), bulb.getBrightness(), bulb.getKelvin());
 
-        factory.m_byteList.add((byte) 0);
-        factory.m_byteList.add((byte) 0);
-        factory.m_byteList.add((byte) 0);
-        factory.m_byteList.add((byte) 0);
+        factory.byteList.add((byte) 0);
+        factory.byteList.add((byte) 0);
+        factory.byteList.add((byte) 0);
+        factory.byteList.add((byte) 0);
 
         factory.setLength();
         return factory.getByteArrayFromList();
@@ -144,7 +142,7 @@ class PacketFactory {
 
     //Utility Functions
     private void setHSBK(int h, int s, int b, int k){
-        List<Byte> bytes = this.m_byteList;
+        List<Byte> bytes = this.byteList;
         bytes.add((byte)(h & 0xff));
         bytes.add((byte)((h>>>8) & 0xff));
 
@@ -158,7 +156,7 @@ class PacketFactory {
         bytes.add((byte)((k>>>8) & 0xff));
     }
     private byte[] getByteArrayFromList(){
-        List<Byte> byteList = this.m_byteList;
+        List<Byte> byteList = this.byteList;
         byte[] bytes = new byte[byteList.size()];
         for(int i = 0; i < byteList.size(); i++)
             bytes[i] = byteList.get(i);
@@ -166,7 +164,7 @@ class PacketFactory {
         return bytes;
     }
     private void addAll(List<Byte> bytes){
-        this.m_byteList.addAll(bytes);
+        this.byteList.addAll(bytes);
     }
     private List<Integer> convertHexToInts(String hex){
         List<Integer> ints = new ArrayList<>(hex.length()/2);
@@ -176,12 +174,12 @@ class PacketFactory {
         return ints;
     }
     private void setLength(){
-        m_byteList.set(0, (byte)m_byteList.size());
-        m_byteList.set(1, (byte)(m_byteList.size() >>> 8));
+        byteList.set(0, (byte) byteList.size());
+        byteList.set(1, (byte)(byteList.size() >>> 8));
     }
     private void updateByteList(){
         List<Byte> byteList = new ArrayList<>(36);
-        byte[] bytes = m_bits.toByteArray();
+        byte[] bytes = bits.toByteArray();
         for (byte aByte : bytes)
             byteList.add(aByte);
 
@@ -189,23 +187,23 @@ class PacketFactory {
             byteList.add((byte) 0);
 
         setLength();
-        m_byteList = byteList;
+        this.byteList = byteList;
     }
 
     private void addBitsFromInt(int value, int start){
         int counter = start;
         while(value > 0){
             if(value % 2 != 0)
-                m_bits.set(counter);
+                bits.set(counter);
             counter++;
             value = value >>> 1;
         }
     }
     private void setBits(boolean on, int bit){
         if(on)
-            m_bits.set(bit);
+            bits.set(bit);
         else
-            m_bits.clear(bit);
+            bits.clear(bit);
     }
     private void addEmptyBytes(int byteNum, List<Byte> bytes){
         for(int i = 0; i < byteNum; i++)

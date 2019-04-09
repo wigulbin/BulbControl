@@ -9,14 +9,7 @@ public class KelvinTable {
         String rgb = kelvinColorArr.get(kelvin);
         if(rgb != null) {
             String[] rgbArr = rgb.split(":");
-
-            String hex = String.format("#%02x%02x%02x", Integer.parseInt(rgbArr[0]), Integer.parseInt(rgbArr[1]), Integer.parseInt(rgbArr[2]));
-            int red = (Integer.parseInt(rgbArr[0]) << 16) & 0x00FF0000;
-            int green = (Integer.parseInt(rgbArr[1]) << 8) & 0x00FF0000;
-            int blue = (Integer.parseInt(rgbArr[1])) & 0xFF000000;
-
-//            return 0xFF000000 | red | green | blue;
-            return hex;
+            return String.format("#%02x%02x%02x", Integer.parseInt(rgbArr[0]), Integer.parseInt(rgbArr[1]), Integer.parseInt(rgbArr[2]));
         }
 
         return "";
