@@ -47,8 +47,11 @@ public class HueBulb extends SmartBulb implements Changeable {
             for (String mac : macs)
             {
                 HueBulb bulb = getBulb(mac, context);
-                bulbs.add(bulb);
-                SmartBulb.addBulb(bulb);
+                if(bulb != null)
+                {
+                    bulbs.add(bulb);
+                    SmartBulb.addBulb(bulb);
+                }
             }
         }
 

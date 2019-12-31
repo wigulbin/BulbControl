@@ -26,7 +26,7 @@ class LifxWrapper {
         DatagramPacket packet = new DatagramPacket(message, message.length, address, 56700);
         try(DatagramSocket socket = new DatagramSocket()){
             byte buffer[] = new byte[256];
-            socket.setSoTimeout(500);
+            socket.setSoTimeout(750);
             socket.send(packet);
             packet = new DatagramPacket(buffer, buffer.length);
             socket.receive(packet);
@@ -85,7 +85,8 @@ class LifxWrapper {
 
     static String getLabel(String macAddress){
         byte[] response;
-        do response = sendMessage(PacketFactory.buildGetLabelMessage(macAddress), true);
+        do
+            response = sendMessage(PacketFactory.buildGetLabelMessage(macAddress), true);
         while(response.length == 0);
         byte[] labelArr = Common.getSubArray(response, 36, response[0]);
         return new String(labelArr);
@@ -93,7 +94,8 @@ class LifxWrapper {
 
     static String getGroup(String macAddress){
         byte[] response;
-        do response = sendMessage(PacketFactory.buildGetGroupMessage(macAddress), true);
+        do
+            response = sendMessage(PacketFactory.buildGetGroupMessage(macAddress), true);
         while(response.length == 0);
         byte[] labelArr = Common.getSubArray(response, 52, 68);
         return new String(labelArr);

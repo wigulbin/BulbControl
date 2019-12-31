@@ -59,6 +59,10 @@ public class HueBridge {
                         Gson gson = new Gson();
                         editor.putString(id, gson.toJson(bridge));
                         editor.apply();
+                    } else {
+                        HueBridge bridge = retrieveBridge(id, context);
+                        bridge.setInternalIpAddress(bridgeJson.getString("internalipaddress"));
+                        bridge.save(context);
                     }
                 }
                 editor.putStringSet("hue_bridges", bridgeIds);

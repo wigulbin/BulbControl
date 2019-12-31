@@ -124,8 +124,9 @@ public class MainActivity extends WearableActivity {
             startActivity(getIntent());
         });
 
-        ImageView connectBridge = findViewById(R.id.connect_bridge);
+        LinearLayout connectBridge = findViewById(R.id.connect_bridge_linear);
         connectBridge.setOnClickListener((v) -> {
+            System.out.println("here");
             List<HueBridge> bridges = HueBridge.retrieveBridges(getApplicationContext());
             totalBridges = new AtomicInteger(bridges.size());
             for (HueBridge bridge : bridges)
@@ -257,6 +258,7 @@ public class MainActivity extends WearableActivity {
                     }
                 } catch (Exception e){
                     e.printStackTrace();
+                    return "Error encountered";
                 }
             }
 
@@ -273,6 +275,10 @@ public class MainActivity extends WearableActivity {
 
                 toast.show();
             }
+            else
+                Toast.makeText(getApplicationContext(),
+                        "No Message",
+                        Toast.LENGTH_SHORT).show();
         }
     }
 
